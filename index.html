@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Finance Tracker</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>Add Expense</h2>
+
+<input type="date" id="date">
+
+<input type="number"
+       id="amount"
+       placeholder="Amount">
+
+<select id="category"></select>
+
+<select id="subcategory"></select>
+
+<input type="text"
+       id="note"
+       placeholder="Note">
+
+<button onclick="saveExpense()">
+    Save
+</button>
+
+<hr>
+
+<h2>This Month</h2>
+
+<div id="summary"></div>
+
+<script src="supabase.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
