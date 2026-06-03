@@ -133,9 +133,52 @@ async function loadSummary() {
         .getElementById("summary")
         .innerHTML = html;
 }
+async function loadExpenses() {
+
+    const { data, error } =
+        await supabaseClient
+        .from("transactions")
+        .select(`
+            *,
+            categories(name),
+            subcategories(name)
+        `)
+        .order("transaction_date", {
+            ascending: false
+        });
+
+    let html = `
+        <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Amount</th>
+            <th>Note</th>
+        </tr>
+    `;
+
+    data.forEach(t => {
+
+        html += `
+        <tr>
+            <td>${t.transaction_date}</td>
+            <td>${t.categories?.name || ''}</td>
+            <td>${t.subcategories?.name || ''}</td>
+            <td>${t.amount}</td>
+            <td>${t.note || ''}</td>
+        </tr>
+        `;
+
+    });
+
+    document
+        .getElementById("expensesTable")
+        .innerHTML = html;
+}
 
 loadCategories();
 loadSummary();
+loadExpenses();
 
 document
 .getElementById("date")
