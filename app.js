@@ -179,7 +179,7 @@ async function loadSummary() {
                 <td>
                     ${formatMKD(total)} MKD / 
                      
-                    <small>
+                    <small style="color:#666;">
                         ${percent.toFixed(1).replace(".", ",")}%
                     </small>
                 </td>
