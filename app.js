@@ -177,8 +177,8 @@ async function loadSummary() {
             <tr>
                 <td>${name}</td>
                 <td>
-                    ${formatMKD(total)} MKD
-                    <br>
+                    ${formatMKD(total)} MKD / 
+                     
                     <small>
                         ${percent.toFixed(1).replace(".", ",")}%
                     </small>
@@ -706,8 +706,8 @@ async function loadIncomeBreakdown() {
             <tr>
                 <td>${name}</td>
                 <td>
-                    ${formatMKD(total)} MKD
-                    <br>
+                    ${formatMKD(total)} MKD / 
+                    
                     <small style="color:#666;">
     ${percent.toFixed(1).replace(".", ",")}%
 </small>
