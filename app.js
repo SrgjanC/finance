@@ -56,6 +56,17 @@ document
     "change",
     loadSubcategories
 );
+
+function formatMKD(value) {
+
+    return Number(value)
+        .toLocaleString('mk-MK', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+}
+
 async function saveExpense() {
 
     await supabaseClient
@@ -211,16 +222,28 @@ async function loadBudgetProgress() {
         income > 0
         ? (spent / income) * 100
         : 0;
+const bar =
+    document.getElementById("budgetBar");
 
+if (percent < 50) {
+    bar.style.background = "#4caf50";
+}
+else if (percent < 80) {
+    bar.style.background = "#ff9800";
+}
+else {
+    bar.style.background = "#f44336";
+}
+    
     document
         .getElementById("budgetBar")
         .style.width =
         Math.min(percent,100) + "%";
 
     document
-        .getElementById("budgetText")
-        .innerHTML =
-        `${spent.toFixed(0)} / ${income.toFixed(0)} MKD (${percent.toFixed(1)}%)`;
+    .getElementById("budgetText")
+    .innerHTML =
+    `${formatMKD(spent)} / ${formatMKD(income)} MKD (${percent.toFixed(1).replace('.', ',')}%)`;
 
 }
 
@@ -349,19 +372,19 @@ async function loadDashboard() {
     document
         .getElementById("incomeCard")
         .innerHTML =
-        income.toLocaleString() +
+        formatMKD(income) +
         " MKD";
 
     document
         .getElementById("spentCard")
         .innerHTML =
-        spent.toLocaleString() +
+        formatMKD(spent) +
         " MKD";
 
     document
         .getElementById("remainingCard")
         .innerHTML =
-        remaining.toLocaleString() +
+        formatMKD(remaining) +
         " MKD";
 
     document
