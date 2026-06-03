@@ -241,7 +241,26 @@ async function deleteExpense(id) {
 
 async function loadDashboard() {
 
-    const MONTHLY_INCOME = 84581;
+    const MONTHLY_INconst { data: incomes } =
+await supabaseClient
+    .from("incomes")
+    .select("amount")
+    .gte("income_date", firstDay);
+
+let income = 0;
+
+incomes.forEach(i => {
+    income += Number(i.amount);
+});
+
+    const remaining =
+    income - spent;
+
+    document
+.getElementById("incomeCard")
+.innerHTML =
+income.toLocaleString() +
+" MKD";
 
     const today = new Date();
 
@@ -301,7 +320,95 @@ async function loadDashboard() {
         data.length;
 }
 
+async function loadIncomeSources() {
 
+    const { data } =
+        await supabaseClient
+            .from("income_sources")
+            .select("*")
+            .order("id");
+
+    const select =
+        document.getElementById("incomeSource");
+
+    select.innerHTML = "";
+
+    data.forEach(s => {
+
+        select.innerHTML += `
+            <option value="${s.id}">
+                ${s.name}
+            </option>
+        `;
+    });
+
+    loadIncomeSubcategories();
+}
+
+async function loadIncomeSubcategories() {
+
+    const sourceId =
+        document.getElementById("incomeSource").value;
+
+    const { data } =
+        await supabaseClient
+            .from("income_subcategories")
+            .select("*")
+            .eq("source_id", sourceId);
+
+    const select =
+        document.getElementById("incomeSubcategory");
+
+    select.innerHTML = "";
+
+    data.forEach(s => {
+
+        select.innerHTML += `
+            <option value="${s.id}">
+                ${s.name}
+            </option>
+        `;
+    });
+}
+
+async function saveIncome() {
+
+    const { error } =
+        await supabaseClient
+            .from("incomes")
+            .insert({
+
+                income_date:
+                    document.getElementById("incomeDate").value,
+
+                amount:
+                    Number(
+                        document.getElementById("incomeAmount").value
+                    ),
+
+                source_id:
+                    Number(
+                        document.getElementById("incomeSource").value
+                    ),
+
+                subcategory_id:
+                    Number(
+                        document.getElementById("incomeSubcategory").value
+                    ),
+
+                note:
+                    document.getElementById("incomeNote").value
+            });
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    alert("Income Saved");
+
+    loadDashboard();
+}
 
 
 
@@ -312,6 +419,21 @@ loadCategories();
 loadSummary();
 loadExpenses();
 
+loadIncomeSources();
+
+document
+.getElementById("incomeDate")
+.valueAsDate =
+new Date();
+
+
 document
     .getElementById("date")
     .valueAsDate = new Date();
+
+document
+.getElementById("incomeSource")
+.addEventListener(
+    "change",
+    loadIncomeSubcategories
+);
