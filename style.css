@@ -69,3 +69,17 @@ button {
     width:0%;
     background:#4caf50;
 }
+.week-good {
+    color: green;
+    font-weight: bold;
+}
+
+.week-warning {
+    color: orange;
+    font-weight: bold;
+}
+
+.week-danger {
+    color: red;
+    font-weight: bold;
+}
