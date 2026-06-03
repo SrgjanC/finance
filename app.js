@@ -872,7 +872,109 @@ document
         .innerHTML = html;
 }
 
+async function loadCredits() {
 
+    const { data, error } =
+        await supabaseClient
+            .from("credits")
+            .select("*")
+            .order("monthly_payment", {
+                ascending: false
+            });
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let totalDebt = 0;
+    let totalMonthly = 0;
+
+    let html = "";
+
+    data.forEach(c => {
+
+        totalDebt +=
+            Number(c.current_balance);
+
+        totalMonthly +=
+            Number(c.monthly_payment);
+
+        const paidPercent =
+            (
+                (c.original_amount - c.current_balance)
+                /
+                c.original_amount
+            ) * 100;
+
+        html += `
+            <div class="credit-card">
+
+                <div class="credit-title">
+                    ${c.name}
+                </div>
+
+                <div class="credit-progress">
+                    <div
+                        class="credit-fill"
+                        style="width:${paidPercent}%">
+                    </div>
+                </div>
+
+                <strong>
+                    ${paidPercent.toFixed(1).replace(".", ",")}%
+                    Paid
+                </strong>
+
+                <br>
+
+                Remaining:
+                ${formatMKD(c.current_balance)}
+                MKD
+
+                <br>
+
+                Monthly:
+                ${formatMKD(c.monthly_payment)}
+                MKD
+
+                <br>
+
+                End:
+                ${c.end_date}
+
+            </div>
+        `;
+    });
+
+    html =
+        `
+        <div class="credit-card">
+
+            <h3>Overview</h3>
+
+            Total Debt:
+            <strong>
+                ${formatMKD(totalDebt)}
+                MKD
+            </strong>
+
+            <br>
+
+            Monthly Payments:
+            <strong>
+                ${formatMKD(totalMonthly)}
+                MKD
+            </strong>
+
+        </div>
+        `
+        + html;
+
+    document
+        .getElementById("creditTracker")
+        .innerHTML = html;
+}
 
 
 loadIncomeSources();
@@ -886,6 +988,7 @@ loadIncomeBreakdown();
 loadBudgetProgress();
 loadWeeklyGroceries();
 loadTopCategories();
+loadCredits();
 
 document
 .getElementById("incomeDate")
