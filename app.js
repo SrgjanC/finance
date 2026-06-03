@@ -101,6 +101,7 @@ async function saveExpense() {
     loadSummary();
     loadExpenses();
     loadBudgetProgress()
+    loadWeeklyGroceries();
 }
 
 
@@ -310,6 +311,7 @@ async function deleteExpense(id) {
     loadExpenses();
     loadSummary();
     loadBudgetProgress()
+    loadWeeklyGroceries();
 }
 
 async function loadDashboard() {
@@ -630,7 +632,106 @@ async function loadIncomeBreakdown() {
         .innerHTML = html;
 }
 
+async function loadWeeklyGroceries() {
 
+    const today = new Date();
+
+    const firstDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        );
+
+    const lastDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth() + 1,
+            0
+        );
+
+    const { data, error } =
+        await supabaseClient
+            .from("transactions")
+            .select(`
+                transaction_date,
+                amount,
+                category_id,
+                categories(name)
+            `)
+            .gte(
+                "transaction_date",
+                firstDay.toISOString().split("T")[0]
+            )
+            .lte(
+                "transaction_date",
+                lastDay.toISOString().split("T")[0]
+            );
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const weeks = {
+        1:0,
+        2:0,
+        3:0,
+        4:0,
+        5:0
+    };
+
+    data.forEach(t => {
+
+        if(t.categories?.name !== "Groceries")
+            return;
+
+        const day =
+            new Date(t.transaction_date)
+                .getDate();
+
+        const week =
+            Math.ceil(day / 7);
+
+        weeks[week] +=
+            Number(t.amount);
+    });
+
+    let total = 0;
+
+    let html = `
+        <table>
+            <tr>
+                <th>Week</th>
+                <th>Total</th>
+            </tr>
+    `;
+
+    for(let i=1;i<=5;i++){
+
+        total += weeks[i];
+
+        html += `
+            <tr>
+                <td>Week ${i}</td>
+                <td>${formatMKD(weeks[i])} MKD</td>
+            </tr>
+        `;
+    }
+
+    html += `
+        <tr style="font-weight:bold">
+            <td>TOTAL</td>
+            <td>${formatMKD(total)} MKD</td>
+        </tr>
+    `;
+
+    html += "</table>";
+
+    document
+        .getElementById("weeklyGroceries")
+        .innerHTML = html;
+}
 
 
 
@@ -644,7 +745,7 @@ loadExpenses();
 loadIncomeHistory();
 loadIncomeBreakdown();
 loadBudgetProgress()
-
+loadWeeklyGroceries();
 
 document
 .getElementById("incomeDate")
