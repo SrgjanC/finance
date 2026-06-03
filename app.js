@@ -409,6 +409,7 @@ async function saveIncome() {
 
 loadDashboard();
 loadIncomeHistory();
+    loadIncomeBreakdown();
 }
 
 async function loadIncomeHistory() {
@@ -472,9 +473,87 @@ async function deleteIncome(id) {
 
     loadIncomeHistory();
     loadDashboard();
+    loadIncomeBreakdown();
 }
 
+async function loadIncomeBreakdown() {
 
+    const today = new Date();
+
+    const firstDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        )
+        .toISOString()
+        .split("T")[0];
+
+    const { data, error } =
+        await supabaseClient
+            .from("incomes")
+            .select(`
+                amount,
+                income_subcategories(name)
+            `)
+            .gte("income_date", firstDay);
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const totals = {};
+
+    let grandTotal = 0;
+
+    data.forEach(i => {
+
+        const name =
+            i.income_subcategories?.name || "Other";
+
+        totals[name] =
+            (totals[name] || 0)
+            + Number(i.amount);
+
+        grandTotal += Number(i.amount);
+
+    });
+
+    let html = "<table>";
+
+    html += `
+        <tr>
+            <th>Type</th>
+            <th>Amount</th>
+        </tr>
+    `;
+
+    Object.entries(totals)
+        .sort((a,b)=>b[1]-a[1])
+        .forEach(([name,total]) => {
+
+            html += `
+                <tr>
+                    <td>${name}</td>
+                    <td>${total.toFixed(0)} MKD</td>
+                </tr>
+            `;
+        });
+
+    html += `
+        <tr style="font-weight:bold">
+            <td>TOTAL</td>
+            <td>${grandTotal.toFixed(0)} MKD</td>
+        </tr>
+    `;
+
+    html += "</table>";
+
+    document
+        .getElementById("incomeBreakdown")
+        .innerHTML = html;
+}
 
 
 
@@ -488,6 +567,9 @@ loadDashboard();
 loadSummary();
 loadExpenses();
 loadIncomeHistory();
+loadIncomeBreakdown();
+
+
 
 document
 .getElementById("incomeDate")
