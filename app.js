@@ -175,6 +175,53 @@ async function loadSummary() {
         .innerHTML = html;
 }
 
+async function loadBudgetProgress() {
+
+    const today = new Date();
+
+    const firstDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        )
+        .toISOString()
+        .split("T")[0];
+
+    const { data: incomes } =
+        await supabaseClient
+            .from("incomes")
+            .select("amount")
+            .gte("income_date", firstDay);
+
+    const { data: expenses } =
+        await supabaseClient
+            .from("transactions")
+            .select("amount")
+            .gte("transaction_date", firstDay);
+
+    let income = 0;
+    let spent = 0;
+
+    incomes.forEach(i => income += Number(i.amount));
+    expenses.forEach(e => spent += Number(e.amount));
+
+    const percent =
+        income > 0
+        ? (spent / income) * 100
+        : 0;
+
+    document
+        .getElementById("budgetBar")
+        .style.width =
+        Math.min(percent,100) + "%";
+
+    document
+        .getElementById("budgetText")
+        .innerHTML =
+        `${spent.toFixed(0)} / ${income.toFixed(0)} MKD (${percent.toFixed(1)}%)`;
+}
+
 async function loadExpenses() {
 
     const { data, error } =
