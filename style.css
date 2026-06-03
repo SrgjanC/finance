@@ -88,4 +88,6 @@ button {
     height: 100%;
     width: 0%;
     background: green;
+    transition: width 0.4s ease;
+    border-radius: 12px;
 }
