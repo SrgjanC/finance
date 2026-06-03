@@ -105,3 +105,10 @@ button {
     padding: 15px;
     background: white;
 }
+@media (max-width: 768px) {
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
