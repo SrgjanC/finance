@@ -102,6 +102,7 @@ async function saveExpense() {
     loadExpenses();
     loadBudgetProgress();
     loadWeeklyGroceries();
+    loadTopCategories();
 }
 
 
@@ -248,6 +249,78 @@ else {
 
 }
 
+async function loadTopCategories() {
+
+    const today = new Date();
+
+    const firstDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        )
+        .toISOString()
+        .split("T")[0];
+
+    const { data, error } =
+        await supabaseClient
+            .from("transactions")
+            .select(`
+                amount,
+                categories(name)
+            `)
+            .gte(
+                "transaction_date",
+                firstDay
+            );
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const totals = {};
+
+    data.forEach(t => {
+
+        const category =
+            t.categories?.name || "Other";
+
+        totals[category] =
+            (totals[category] || 0)
+            + Number(t.amount);
+
+    });
+
+    const sorted =
+        Object.entries(totals)
+        .sort((a,b)=>b[1]-a[1]);
+
+    let html = `
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Total</th>
+            </tr>
+    `;
+
+    sorted.forEach(([name,total]) => {
+
+        html += `
+            <tr>
+                <td>${name}</td>
+                <td>${formatMKD(total)} MKD</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document
+        .getElementById("topCategories")
+        .innerHTML = html;
+}
+
 async function loadExpenses() {
 
     const { data, error } =
@@ -312,6 +385,7 @@ async function deleteExpense(id) {
     loadSummary();
     loadBudgetProgress();
     loadWeeklyGroceries();
+    loadTopCategories();
 }
 
 async function loadDashboard() {
@@ -797,6 +871,7 @@ loadIncomeHistory();
 loadIncomeBreakdown();
 loadBudgetProgress();
 loadWeeklyGroceries();
+loadTopCategories();
 
 document
 .getElementById("incomeDate")
