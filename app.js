@@ -241,27 +241,6 @@ async function deleteExpense(id) {
 
 async function loadDashboard() {
 
-    const MONTHLY_INconst { data: incomes } =
-await supabaseClient
-    .from("incomes")
-    .select("amount")
-    .gte("income_date", firstDay);
-
-let income = 0;
-
-incomes.forEach(i => {
-    income += Number(i.amount);
-});
-
-    const remaining =
-    income - spent;
-
-    document
-.getElementById("incomeCard")
-.innerHTML =
-income.toLocaleString() +
-" MKD";
-
     const today = new Date();
 
     const firstDay =
@@ -273,7 +252,28 @@ income.toLocaleString() +
         .toISOString()
         .split("T")[0];
 
-    const { data, error } =
+    // Load incomes
+
+    const { data: incomes, error: incomeError } =
+        await supabaseClient
+            .from("incomes")
+            .select("amount")
+            .gte("income_date", firstDay);
+
+    if (incomeError) {
+        console.error(incomeError);
+        return;
+    }
+
+    let income = 0;
+
+    incomes.forEach(i => {
+        income += Number(i.amount);
+    });
+
+    // Load expenses
+
+    const { data: expenses, error: expenseError } =
         await supabaseClient
             .from("transactions")
             .select("amount")
@@ -282,24 +282,24 @@ income.toLocaleString() +
                 firstDay
             );
 
-    if (error) {
-        console.error(error);
+    if (expenseError) {
+        console.error(expenseError);
         return;
     }
 
     let spent = 0;
 
-    data.forEach(t => {
-        spent += Number(t.amount);
+    expenses.forEach(e => {
+        spent += Number(e.amount);
     });
 
     const remaining =
-        MONTHLY_INCOME - spent;
+        income - spent;
 
     document
         .getElementById("incomeCard")
         .innerHTML =
-        MONTHLY_INCOME.toLocaleString() +
+        income.toLocaleString() +
         " MKD";
 
     document
@@ -317,7 +317,7 @@ income.toLocaleString() +
     document
         .getElementById("transactionCard")
         .innerHTML =
-        data.length;
+        expenses.length;
 }
 
 async function loadIncomeSources() {
@@ -407,19 +407,20 @@ async function saveIncome() {
 
     alert("Income Saved");
 
-    loadDashboard();
+loadDashboard();
+loadIncomeHistory();
 }
 
 
 
 
 
-loadDashboard();
+loadIncomeSources();
 loadCategories();
+
+loadDashboard();
 loadSummary();
 loadExpenses();
-
-loadIncomeSources();
 
 document
 .getElementById("incomeDate")
