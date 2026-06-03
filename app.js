@@ -165,24 +165,35 @@ async function loadSummary() {
     `;
 
     Object.entries(totals)
-        .sort((a,b)=>b[1]-a[1])
-        .forEach(([name,total]) => {
+    .sort((a,b)=>b[1]-a[1])
+    .forEach(([name,total]) => {
 
-            html += `
-                <tr>
-                    <td>${name}</td>
-                    <td>${formatMKD(total)} MKD</td>
-                </tr>
-            `;
-        });
+        const percent =
+            grandTotal > 0
+            ? (total / grandTotal) * 100
+            : 0;
+
+        html += `
+            <tr>
+                <td>${name}</td>
+                <td>
+                    ${formatMKD(total)} MKD
+                    <br>
+                    <small>
+                        ${percent.toFixed(1).replace(".", ",")}%
+                    </small>
+                </td>
+            </tr>
+        `;
+    });
 
     html += `
-        <tr style="font-weight:bold">
-            <td>TOTAL</td>
-            <td>${grandTotal.toFixed(0)} MKD</td>
-        </tr>
-    </table>
-    `;
+    <tr style="font-weight:bold">
+        <td>TOTAL</td>
+        <td>${formatMKD(grandTotal)} MKD</td>
+    </tr>
+</table>
+`;
 
     document
         .getElementById("summary")
@@ -678,26 +689,37 @@ async function loadIncomeBreakdown() {
     html += `
         <tr>
             <th>Type</th>
-            <th>Amount</th>
+            <th>Amount / %</th>
         </tr>
     `;
 
     Object.entries(totals)
-        .sort((a,b)=>b[1]-a[1])
-        .forEach(([name,total]) => {
+    .sort((a,b)=>b[1]-a[1])
+    .forEach(([name,total]) => {
 
-            html += `
-                <tr>
-                    <td>${name}</td>
-                    <td>${formatMKD(total)} MKD</td>
-                </tr>
-            `;
-        });
+        const percent =
+            grandTotal > 0
+            ? (total / grandTotal) * 100
+            : 0;
+
+        html += `
+            <tr>
+                <td>${name}</td>
+                <td>
+                    ${formatMKD(total)} MKD
+                    <br>
+                    <small style="color:#666;">
+    ${percent.toFixed(1).replace(".", ",")}%
+</small>
+                </td>
+            </tr>
+        `;
+    });
 
     html += `
         <tr style="font-weight:bold">
             <td>TOTAL</td>
-            <td>${grandTotal.toFixed(0)} MKD</td>
+            <td>${formatMKD(grandTotal)} MKD</td>
         </tr>
     `;
 
