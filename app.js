@@ -87,93 +87,154 @@ async function saveExpense() {
     alert("Saved");
 
     loadSummary();
+    loadExpenses();
 }
+
+
 async function loadSummary() {
 
-    const currentMonth =
-        new Date()
-        .toISOString()
-        .slice(0,7);
+    const today = new Date();
 
-    const { data } =
+    const firstDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        )
+        .toISOString()
+        .split("T")[0];
+
+    const { data, error } =
         await supabaseClient
-        .from("transactions")
-        .select(`
-            amount,
-            categories(name)
-        `);
+            .from("transactions")
+            .select(`
+                amount,
+                category_id,
+                categories(name)
+            `)
+            .gte(
+                "transaction_date",
+                firstDay
+            );
+
+    if (error) {
+        console.error(error);
+        return;
+    }
 
     const totals = {};
+
+    let grandTotal = 0;
 
     data.forEach(t => {
 
         const category =
-            t.categories.name;
+            t.categories?.name || "Other";
+
+        const amount =
+            Number(t.amount);
 
         totals[category] =
             (totals[category] || 0)
-            + Number(t.amount);
+            + amount;
 
+        grandTotal += amount;
     });
 
-    let html = "";
+    let html = `
+        <table>
+            <tr>
+                <th>Category</th>
+                <th>Total</th>
+            </tr>
+    `;
 
     Object.entries(totals)
+        .sort((a,b)=>b[1]-a[1])
         .forEach(([name,total]) => {
 
             html += `
-            <div>
-                ${name}: ${total.toFixed(0)} MKD
-            </div>
+                <tr>
+                    <td>${name}</td>
+                    <td>${total.toFixed(0)} MKD</td>
+                </tr>
             `;
-
         });
+
+    html += `
+        <tr style="font-weight:bold">
+            <td>TOTAL</td>
+            <td>${grandTotal.toFixed(0)} MKD</td>
+        </tr>
+    </table>
+    `;
 
     document
         .getElementById("summary")
         .innerHTML = html;
 }
+
 async function loadExpenses() {
 
     const { data, error } =
         await supabaseClient
-        .from("transactions")
-        .select(`
-            *,
-            categories(name),
-            subcategories(name)
-        `)
-        .order("transaction_date", {
-            ascending: false
-        });
+            .from("transactions")
+            .select(`
+                *,
+                categories(name),
+                subcategories(name)
+            `)
+            .order("transaction_date", {
+                ascending: false
+            });
 
-    let html = `
-        <tr>
-            <th>Date</th>
-            <th>Category</th>
-            <th>Subcategory</th>
-            <th>Amount</th>
-            <th>Note</th>
-        </tr>
-    `;
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    const tbody =
+        document.querySelector("#expensesTable tbody");
+
+    tbody.innerHTML = "";
 
     data.forEach(t => {
 
-        html += `
+        tbody.innerHTML += `
         <tr>
             <td>${t.transaction_date}</td>
-            <td>${t.categories?.name || ''}</td>
-            <td>${t.subcategories?.name || ''}</td>
-            <td>${t.amount}</td>
-            <td>${t.note || ''}</td>
+            <td>${t.categories?.name || ""}</td>
+            <td>${t.subcategories?.name || ""}</td>
+            <td>${Number(t.amount).toFixed(0)} MKD</td>
+            <td>${t.note || ""}</td>
+            <td>
+                <button onclick="deleteExpense(${t.id})">
+                    Delete
+                </button>
+            </td>
         </tr>
         `;
-
     });
+}
 
-    document
-        .getElementById("expensesTable")
-        .innerHTML = html;
+async function deleteExpense(id) {
+
+    if (!confirm("Delete this expense?"))
+        return;
+
+    const { error } =
+        await supabaseClient
+            .from("transactions")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    loadExpenses();
+    loadSummary();
 }
 
 loadCategories();
@@ -181,6 +242,5 @@ loadSummary();
 loadExpenses();
 
 document
-.getElementById("date")
-.valueAsDate =
-new Date();
+    .getElementById("date")
+    .valueAsDate = new Date();
