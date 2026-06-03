@@ -842,15 +842,7 @@ else{
 document
     .getElementById("groceryBudget")
     .innerHTML =
-    `
-    
-    ${formatMKD(total)}
-    /
-    ${formatMKD(GROCERY_BUDGET)}
-    MKD
-    
-    (${groceryPercent.toFixed(1).replace(".", ",")}%)
-    `;
+    `${formatMKD(total)} / ${formatMKD(GROCERY_BUDGET)} MKD (${groceryPercent.toFixed(1).replace(".", ",")}%)`;
 
     
     document
