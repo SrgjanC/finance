@@ -32,3 +32,27 @@ th {
 button {
     cursor: pointer;
 }
+#dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    background: white;
+}
+
+.card-title {
+    font-size: 14px;
+    color: #666;
+}
+
+.card-value {
+    font-size: 26px;
+    font-weight: bold;
+    margin-top: 10px;
+}
