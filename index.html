@@ -67,27 +67,7 @@
     </div>
 
 </div>    
-<hr>
 
-<h2>Add Income</h2>
-
-<input type="date" id="incomeDate">
-
-<input type="number"
-       id="incomeAmount"
-       placeholder="Amount">
-
-<select id="incomeSource"></select>
-
-<select id="incomeSubcategory"></select>
-
-<input type="text"
-       id="incomeNote"
-       placeholder="Note">
-
-<button onclick="saveIncome()">
-    Save Income
-</button>
 <hr>
 <h2>Add Expense</h2>
 
@@ -110,10 +90,26 @@
 </button>
 
 <hr>
+<div class="dashboard-grid">
 
-<h2>This Month</h2>
+    <div class="dashboard-card">
 
-<div id="summary"></div>
+        <h2>Income Breakdown</h2>
+
+        <div id="incomeBreakdown"></div>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>Monthly Summary</h2>
+
+        <div id="summary"></div>
+
+    </div>
+
+</div>
+
 <hr>
 
 <h2>Recent Expenses</h2>
@@ -134,11 +130,27 @@
 </table>
 <hr>
 
-<h2>Income Breakdown</h2>
+<h2>Add Income</h2>
 
-<div id="incomeBreakdown"></div>
+<input type="date" id="incomeDate">
+
+<input type="number"
+       id="incomeAmount"
+       placeholder="Amount">
+
+<select id="incomeSource"></select>
+
+<select id="incomeSubcategory"></select>
+
+<input type="text"
+       id="incomeNote"
+       placeholder="Note">
+
+<button onclick="saveIncome()">
+    Save Income
+</button>
     
-<hr>
+    <hr>
 
 <h2>Income History</h2>
 
