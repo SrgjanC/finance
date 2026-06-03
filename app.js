@@ -86,6 +86,7 @@ async function saveExpense() {
 
     alert("Saved");
 
+    loadDashboard();
     loadSummary();
     loadExpenses();
 }
@@ -233,10 +234,80 @@ async function deleteExpense(id) {
         return;
     }
 
+    loadDashboard();
     loadExpenses();
     loadSummary();
 }
 
+async function loadDashboard() {
+
+    const MONTHLY_INCOME = 84581;
+
+    const today = new Date();
+
+    const firstDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        )
+        .toISOString()
+        .split("T")[0];
+
+    const { data, error } =
+        await supabaseClient
+            .from("transactions")
+            .select("amount")
+            .gte(
+                "transaction_date",
+                firstDay
+            );
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    let spent = 0;
+
+    data.forEach(t => {
+        spent += Number(t.amount);
+    });
+
+    const remaining =
+        MONTHLY_INCOME - spent;
+
+    document
+        .getElementById("incomeCard")
+        .innerHTML =
+        MONTHLY_INCOME.toLocaleString() +
+        " MKD";
+
+    document
+        .getElementById("spentCard")
+        .innerHTML =
+        spent.toLocaleString() +
+        " MKD";
+
+    document
+        .getElementById("remainingCard")
+        .innerHTML =
+        remaining.toLocaleString() +
+        " MKD";
+
+    document
+        .getElementById("transactionCard")
+        .innerHTML =
+        data.length;
+}
+
+
+
+
+
+
+
+loadDashboard();
 loadCategories();
 loadSummary();
 loadExpenses();
