@@ -711,12 +711,24 @@ async function loadWeeklyGroceries() {
 
         total += weeks[i];
 
-        html += `
-            <tr>
-                <td>Week ${i}</td>
-                <td>${formatMKD(weeks[i])} MKD</td>
-            </tr>
-        `;
+        let weekClass = "week-good";
+
+if(weeks[i] > 4000){
+    weekClass = "week-warning";
+}
+
+if(weeks[i] > 6000){
+    weekClass = "week-danger";
+}
+
+html += `
+<tr>
+    <td>Week ${i}</td>
+    <td class="${weekClass}">
+        ${formatMKD(weeks[i])} MKD
+    </td>
+</tr>
+`;
     }
 
     html += `
@@ -728,6 +740,50 @@ async function loadWeeklyGroceries() {
 
     html += "</table>";
 
+const GROCERY_BUDGET = 15000;
+
+const groceryPercent =
+    (total / GROCERY_BUDGET) * 100;
+
+    const groceryBar =
+    document.getElementById("groceryBar");
+
+groceryBar.style.width =
+    Math.min(groceryPercent, 100) + "%";
+
+if(groceryPercent >= 100){
+    groceryBar.style.background = "red";
+}
+else if(groceryPercent >= 80){
+    groceryBar.style.background = "orange";
+}
+else{
+    groceryBar.style.background = "green";
+}
+    
+let budgetClass = "budget-ok";
+
+if (groceryPercent >= 100) {
+    budgetClass = "budget-over";
+}
+else if (groceryPercent >= 80) {
+    budgetClass = "budget-warning";
+}
+
+document
+    .getElementById("groceryBudget")
+    .innerHTML =
+    `
+    <strong>
+    ${formatMKD(total)}
+    /
+    ${formatMKD(GROCERY_BUDGET)}
+    MKD
+    </strong>
+    (${groceryPercent.toFixed(1).replace(".", ",")}%)
+    `;
+
+    
     document
         .getElementById("weeklyGroceries")
         .innerHTML = html;
