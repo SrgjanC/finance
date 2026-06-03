@@ -411,6 +411,72 @@ loadDashboard();
 loadIncomeHistory();
 }
 
+async function loadIncomeHistory() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("incomes")
+            .select(`
+                *,
+                income_sources(name),
+                income_subcategories(name)
+            `)
+            .order("income_date", {
+                ascending: false
+            });
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    const tbody =
+        document.querySelector("#incomeTable tbody");
+
+    tbody.innerHTML = "";
+
+    data.forEach(i => {
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${i.income_date}</td>
+            <td>${i.income_sources?.name || ""}</td>
+            <td>${i.income_subcategories?.name || ""}</td>
+            <td>${Number(i.amount).toFixed(0)} MKD</td>
+            <td>${i.note || ""}</td>
+            <td>
+                <button onclick="deleteIncome(${i.id})">
+                    Delete
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+async function deleteIncome(id) {
+
+    if (!confirm("Delete this income?"))
+        return;
+
+    const { error } =
+        await supabaseClient
+            .from("incomes")
+            .delete()
+            .eq("id", id);
+
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    loadIncomeHistory();
+    loadDashboard();
+}
+
+
+
+
 
 
 
@@ -421,6 +487,7 @@ loadCategories();
 loadDashboard();
 loadSummary();
 loadExpenses();
+loadIncomeHistory();
 
 document
 .getElementById("incomeDate")
