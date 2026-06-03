@@ -83,3 +83,9 @@ button {
     color: red;
     font-weight: bold;
 }
+
+#groceryBar {
+    height: 100%;
+    width: 0%;
+    background: green;
+}
