@@ -843,12 +843,12 @@ document
     .getElementById("groceryBudget")
     .innerHTML =
     `
-    <strong>
+    
     ${formatMKD(total)}
     /
     ${formatMKD(GROCERY_BUDGET)}
     MKD
-    </strong>
+    
     (${groceryPercent.toFixed(1).replace(".", ",")}%)
     `;
 
