@@ -100,7 +100,7 @@ async function saveExpense() {
     loadDashboard();
     loadSummary();
     loadExpenses();
-    loadBudgetProgress()
+    loadBudgetProgress();
     loadWeeklyGroceries();
 }
 
@@ -170,7 +170,7 @@ async function loadSummary() {
             html += `
                 <tr>
                     <td>${name}</td>
-                    <td>${total.toFixed(0)} MKD</td>
+                    <td>${formatMKD(total)} MKD</td>
                 </tr>
             `;
         });
@@ -310,7 +310,7 @@ async function deleteExpense(id) {
     loadDashboard();
     loadExpenses();
     loadSummary();
-    loadBudgetProgress()
+    loadBudgetProgress();
     loadWeeklyGroceries();
 }
 
@@ -485,7 +485,8 @@ async function saveIncome() {
 loadDashboard();
 loadIncomeHistory();
     loadIncomeBreakdown();
-    loadBudgetProgress()
+    loadBudgetProgress();
+    loadWeeklyGroceries();
 }
 
 async function loadIncomeHistory() {
@@ -550,7 +551,8 @@ async function deleteIncome(id) {
     loadIncomeHistory();
     loadDashboard();
     loadIncomeBreakdown();
-    loadBudgetProgress()
+    loadBudgetProgress();
+    loadWeeklyGroceries();
 }
 
 async function loadIncomeBreakdown() {
@@ -613,7 +615,7 @@ async function loadIncomeBreakdown() {
             html += `
                 <tr>
                     <td>${name}</td>
-                    <td>${total.toFixed(0)} MKD</td>
+                    <td>${formatMKD(total)} MKD</td>
                 </tr>
             `;
         });
@@ -761,14 +763,7 @@ else{
     groceryBar.style.background = "green";
 }
     
-let budgetClass = "budget-ok";
 
-if (groceryPercent >= 100) {
-    budgetClass = "budget-over";
-}
-else if (groceryPercent >= 80) {
-    budgetClass = "budget-warning";
-}
 
 document
     .getElementById("groceryBudget")
@@ -800,7 +795,7 @@ loadSummary();
 loadExpenses();
 loadIncomeHistory();
 loadIncomeBreakdown();
-loadBudgetProgress()
+loadBudgetProgress();
 loadWeeklyGroceries();
 
 document
