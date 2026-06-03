@@ -89,6 +89,7 @@ async function saveExpense() {
     loadDashboard();
     loadSummary();
     loadExpenses();
+    loadBudgetProgress()
 }
 
 
@@ -284,6 +285,7 @@ async function deleteExpense(id) {
     loadDashboard();
     loadExpenses();
     loadSummary();
+    loadBudgetProgress()
 }
 
 async function loadDashboard() {
@@ -457,6 +459,7 @@ async function saveIncome() {
 loadDashboard();
 loadIncomeHistory();
     loadIncomeBreakdown();
+    loadBudgetProgress()
 }
 
 async function loadIncomeHistory() {
@@ -521,6 +524,7 @@ async function deleteIncome(id) {
     loadIncomeHistory();
     loadDashboard();
     loadIncomeBreakdown();
+    loadBudgetProgress()
 }
 
 async function loadIncomeBreakdown() {
@@ -615,7 +619,7 @@ loadSummary();
 loadExpenses();
 loadIncomeHistory();
 loadIncomeBreakdown();
-
+loadBudgetProgress()
 
 
 document
