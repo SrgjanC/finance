@@ -221,6 +221,10 @@ async function loadBudgetProgress() {
         .getElementById("budgetText")
         .innerHTML =
         `${spent.toFixed(0)} / ${income.toFixed(0)} MKD (${percent.toFixed(1)}%)`;
+
+    console.log("Income:", income);
+console.log("Spent:", spent);
+console.log("Percent:", percent);
 }
 
 async function loadExpenses() {
