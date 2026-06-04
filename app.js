@@ -1003,7 +1003,22 @@ async function loadAccounts() {
             <div class="account-card">
 
                 <strong>
-                    ${a.name}
+                    let icon = "💰";
+
+if(a.name === "Visa Debit")
+    icon = "🏦";
+
+if(a.name === "MasterCard")
+    icon = "🛟";
+
+if(a.name === "Visa Classic")
+    icon = "📺";
+
+if(a.name === "MasterHappy")
+    icon = "🎁";
+
+if(a.name === "Cash")
+    icon = "💵";
                 </strong>
 
                 <div class="account-balance">
