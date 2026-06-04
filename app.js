@@ -976,6 +976,73 @@ async function loadCredits() {
         .innerHTML = html;
 }
 
+async function loadAccounts() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("accounts")
+            .select("*")
+            .order("balance", {
+                ascending: false
+            });
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let total = 0;
+
+    let html = "";
+
+    data.forEach(a => {
+
+        total += Number(a.balance);
+
+        html += `
+            <div class="account-card">
+
+                <strong>
+                    ${a.name}
+                </strong>
+
+                <div class="account-balance">
+                    ${formatMKD(a.balance)}
+                    MKD
+                </div>
+
+                <div class="account-purpose">
+                    ${a.purpose}
+                </div>
+
+            </div>
+        `;
+    });
+
+    html =
+        `
+        <div class="account-card">
+
+            <h3>Total Available</h3>
+
+            <div class="account-balance">
+                ${formatMKD(total)}
+                MKD
+            </div>
+
+        </div>
+        `
+        + html;
+
+    document
+        .getElementById("accountsTracker")
+        .innerHTML = html;
+}
+
+
+
+
+
 
 loadIncomeSources();
 loadCategories();
@@ -989,6 +1056,8 @@ loadBudgetProgress();
 loadWeeklyGroceries();
 loadTopCategories();
 loadCredits();
+loadAccounts();
+
 
 document
 .getElementById("incomeDate")
