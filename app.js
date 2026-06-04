@@ -1044,7 +1044,7 @@ async function loadAccounts() {
         `
         <div class="account-card">
 
-            <<h3>Overview</h3>
+            <h3>Overview</h3>
 
 Total Available:
 <strong>
