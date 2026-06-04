@@ -1027,9 +1027,10 @@ async function loadAccounts() {
                 </strong>
 
                 <div class="account-balance">
-                    ${formatMKD(a.balance)}
-                    MKD
-                </div>
+    Balance:
+    ${formatMKD(a.balance)}
+    MKD
+</div>
 
                 <div class="account-purpose">
                     ${a.purpose}
@@ -1043,15 +1044,13 @@ async function loadAccounts() {
         `
         <div class="account-card">
 
-            <h3>
-                Total Available:
-                ${formatMKD(total)} MKD
-            </h3>
+            <<h3>Overview</h3>
 
-            <div class="account-balance">
-                ${formatMKD(total)}
-                MKD
-            </div>
+Total Available:
+<strong>
+    ${formatMKD(total)}
+    MKD
+</strong>
 
         </div>
         `
