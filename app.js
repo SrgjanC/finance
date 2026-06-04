@@ -1038,9 +1038,177 @@ async function loadAccounts() {
         .getElementById("accountsTracker")
         .innerHTML = html;
 }
+async function loadTransferAccounts() {
 
+    const { data, error } =
+        await supabaseClient
+            .from("accounts")
+            .select("*")
+            .order("name");
 
+    if(error){
+        console.error(error);
+        return;
+    }
 
+    const from =
+        document.getElementById("fromAccount");
+
+    const to =
+        document.getElementById("toAccount");
+
+    from.innerHTML = "";
+    to.innerHTML = "";
+
+    data.forEach(a => {
+
+        from.innerHTML += `
+            <option value="${a.id}">
+                ${a.name}
+            </option>
+        `;
+
+        to.innerHTML += `
+            <option value="${a.id}">
+                ${a.name}
+            </option>
+        `;
+    });
+}
+async function saveTransfer() {
+
+    const amount =
+        Number(
+            document.getElementById("transferAmount").value
+        );
+
+    const fromId =
+        Number(
+            document.getElementById("fromAccount").value
+        );
+
+    const toId =
+        Number(
+            document.getElementById("toAccount").value
+        );
+
+    if(fromId === toId){
+
+        alert(
+            "Source and destination cannot be the same."
+        );
+
+        return;
+    }
+
+    const { data: fromAccount } =
+        await supabaseClient
+            .from("accounts")
+            .select("*")
+            .eq("id", fromId)
+            .single();
+
+    const { data: toAccount } =
+        await supabaseClient
+            .from("accounts")
+            .select("*")
+            .eq("id", toId)
+            .single();
+
+    if(amount > fromAccount.balance){
+
+        alert(
+            "Insufficient balance."
+        );
+
+        return;
+    }
+
+    await supabaseClient
+        .from("account_transfers")
+        .insert({
+
+            transfer_date:
+                document.getElementById("transferDate").value,
+
+            from_account_id:
+                fromId,
+
+            to_account_id:
+                toId,
+
+            amount:
+                amount,
+
+            note:
+                document.getElementById("transferNote").value
+        });
+
+    await supabaseClient
+        .from("accounts")
+        .update({
+            balance:
+                Number(fromAccount.balance)
+                - amount
+        })
+        .eq("id", fromId);
+
+    await supabaseClient
+        .from("accounts")
+        .update({
+            balance:
+                Number(toAccount.balance)
+                + amount
+        })
+        .eq("id", toId);
+
+    alert("Transfer Complete");
+
+    loadAccounts();
+    loadTransferHistory();
+}
+async function loadTransferHistory() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("account_transfers")
+            .select(`
+                *,
+                from_account:from_account_id(name),
+                to_account:to_account_id(name)
+            `)
+            .order(
+                "transfer_date",
+                {
+                    ascending:false
+                }
+            );
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const tbody =
+        document.querySelector(
+            "#transferTable tbody"
+        );
+
+    tbody.innerHTML = "";
+
+    data.forEach(t => {
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${t.transfer_date}</td>
+            <td>${t.from_account?.name}</td>
+            <td>${t.to_account?.name}</td>
+            <td>${formatMKD(t.amount)} MKD</td>
+            <td>${t.note || ""}</td>
+        </tr>
+        `;
+    });
+}
 
 
 
@@ -1057,12 +1225,10 @@ loadWeeklyGroceries();
 loadTopCategories();
 loadCredits();
 loadAccounts();
+loadTransferAccounts();
+loadTransferHistory();
 
 
-document
-.getElementById("incomeDate")
-.valueAsDate =
-new Date();
 
 
 document
@@ -1075,3 +1241,13 @@ document
     "change",
     loadIncomeSubcategories
 );
+
+document
+.getElementById("transferDate")
+.valueAsDate =
+new Date();
+
+document
+.getElementById("incomeDate")
+.valueAsDate =
+new Date();
