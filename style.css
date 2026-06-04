@@ -145,3 +145,20 @@ button {
     height: 100%;
     background: #4caf50;
 }
+.account-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: white;
+}
+
+.account-balance {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.account-purpose {
+    color: #666;
+    margin-top: 5px;
+}
