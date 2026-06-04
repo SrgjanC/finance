@@ -925,7 +925,13 @@ async function loadCredits() {
                     ${paidPercent.toFixed(1).replace(".", ",")}%
                     Paid
                 </strong>
+<br>
 
+<small style="color:#666;">
+    ${formatMKD(c.original_amount)}
+    → 
+    ${formatMKD(c.current_balance)}
+</small>
                 <br>
 
                 Remaining:
@@ -999,26 +1005,25 @@ async function loadAccounts() {
 
         total += Number(a.balance);
 
+        const icons = {
+            "Visa Debit": "🏦",
+            "MasterCard": "🛟",
+            "Visa Classic": "📺",
+            "MasterHappy": "🎁",
+            "Cash": "💵",
+    "Bonus Reserve": "🎯",
+    "Vacation Fund": "✈️",
+    "Investment Fund": "📈"
+        };
+
+        const icon =
+            icons[a.name] || "💰";
+
         html += `
             <div class="account-card">
 
                 <strong>
-                    let icon = "💰";
-
-if(a.name === "Visa Debit")
-    icon = "🏦";
-
-if(a.name === "MasterCard")
-    icon = "🛟";
-
-if(a.name === "Visa Classic")
-    icon = "📺";
-
-if(a.name === "MasterHappy")
-    icon = "🎁";
-
-if(a.name === "Cash")
-    icon = "💵";
+                    ${icon} ${a.name}
                 </strong>
 
                 <div class="account-balance">
