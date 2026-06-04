@@ -66,7 +66,28 @@ function formatMKD(value) {
         });
 
 }
+async function loadExpenseAccounts() {
 
+    const { data } =
+        await supabaseClient
+            .from("accounts")
+            .select("*")
+            .order("name");
+
+    const select =
+        document.getElementById("expenseAccount");
+
+    select.innerHTML = "";
+
+    data.forEach(a => {
+
+        select.innerHTML += `
+            <option value="${a.id}">
+                ${a.name}
+            </option>
+        `;
+    });
+}
 async function saveExpense() {
 
     await supabaseClient
@@ -1236,7 +1257,7 @@ async function loadTransferHistory() {
 
 loadIncomeSources();
 loadCategories();
-
+loadExpenseAccounts();
 loadDashboard();
 loadSummary();
 loadExpenses();
