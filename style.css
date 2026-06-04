@@ -154,13 +154,13 @@ button {
 }
 
 .account-balance {
-    font-size: 14px;
-    font-weight: bold;
-    color: #444;
+    font-size: 15px;
+    color: #222;
     margin-top: 4px;
 }
 
 .account-purpose {
     font-size: 13px;
-    color: #777;
+    color: #666;
 }
+
