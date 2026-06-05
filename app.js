@@ -87,6 +87,12 @@ async function loadExpenseAccounts() {
             </option>
         `;
     });
+    const visaDebit =
+    data.find(a => a.name === "Visa Debit");
+
+    if(visaDebit){
+        select.value = visaDebit.id;
+    }
 }
 
 
@@ -111,6 +117,12 @@ async function loadIncomeAccounts() {
             </option>
         `;
     });
+    const visaDebit =
+    data.find(a => a.name === "Visa Debit");
+
+    if(visaDebit){
+        select.value = visaDebit.id;
+    }
 }
 
 
@@ -166,7 +178,7 @@ if(amount > account.balance){
                 document.getElementById("note").value
         });
 
-    alert("Saved");
+
 await supabaseClient
     .from("accounts")
     .update({
@@ -175,6 +187,13 @@ await supabaseClient
             - amount
     })
     .eq("id", accountId);
+
+alert("Saved");
+
+loadExpenseAccounts();
+
+document.getElementById("amount").value = "";
+document.getElementById("note").value = "";
     
     
     loadAccounts();
@@ -661,16 +680,21 @@ const amount =
         return;
     }
 
+    await supabaseClient
+        .from("accounts")
+        .update({
+            balance:
+                Number(account.balance)
+                + amount
+        })
+        .eq("id", accountId);
+
     alert("Income Saved");
-    
-await supabaseClient
-    .from("accounts")
-    .update({
-        balance:
-            Number(account.balance)
-            + amount
-    })
-    .eq("id", accountId);
+
+loadIncomeAccounts();
+
+document.getElementById("incomeAmount").value = "";
+document.getElementById("incomeNote").value = "";
 
     loadAccounts();
     loadDashboard();
