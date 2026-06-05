@@ -177,3 +177,9 @@ button {
     width: 100%;
     box-sizing: border-box;
 }
+.form-row-income-bottom {
+    display: grid;
+    grid-template-columns: 180px 1fr 180px;
+    gap: 10px;
+    margin-bottom: 10px;
+}
