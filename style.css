@@ -179,7 +179,7 @@ button {
 
 .form-row-bottom {
     display: grid;
-    grid-template-columns: 150px 1fr 120px;
+    grid-template-columns: 180px 2fr 140px;
     gap: 10px;
     margin-bottom: 10px;
     align-items: center;
@@ -191,7 +191,6 @@ button {
 }
 
 .form-row-bottom button {
-    width: 120px;
+    width: 140px;
     height: 40px;
-    justify-self: end;
 }
