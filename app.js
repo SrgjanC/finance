@@ -221,7 +221,6 @@ console.log("additionalIncomeThisMonth:", additionalIncomeThisMonth);
     console.log("bonus:", bonus);
 console.log("BONUS_SPLIT:", BONUS_SPLIT);
     if (bonus <= 0) {
-
         document
             .getElementById("bonusPlanner")
             .innerHTML =
@@ -292,7 +291,9 @@ console.log("BONUS_SPLIT:", BONUS_SPLIT);
         }
 
     });
-
+console.log("Savings Goals Data:", data);
+console.log("Goals Array:", goals);
+console.log("activePercent:", activePercent);
     let plannedTotal = 0;
 
     goals.forEach(g => {
