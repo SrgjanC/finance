@@ -133,27 +133,40 @@
 <hr>
 
 <h2>Add Income</h2>
+
 <div class="form-row">
-<input type="date" id="incomeDate">
 
-<input type="number"
-       id="incomeAmount"
-       placeholder="Amount">
+    <input
+        type="date"
+        id="incomeDate">
 
-<select id="incomeSource"></select>
+    <select id="incomeSource"></select>
 
-<select id="incomeSubcategory"></select>
+    <select id="incomeSubcategory"></select>
 
-<select id="incomeAccount"></select>
+    <select id="incomeAccount"></select>
+
+</div>
+
+<div class="form-row">
+
+    <input
+        type="number"
+        id="incomeAmount"
+        placeholder="Amount">
+
+    <input
+        type="text"
+        id="incomeNote"
+        placeholder="Note">
+
+    <button onclick="saveIncome()">
+        Save Income
+    </button>
+
+</div>
     
-<input type="text"
-       id="incomeNote"
-       placeholder="Note">
-
-<button onclick="saveIncome()">
-    Save Income
-</button>
-    </div>
+    
     <hr>
 
 <h2>Income History</h2>
