@@ -125,6 +125,76 @@ async function loadIncomeAccounts() {
     }
 }
 
+async function loadNetWorth() {
+
+    const { data: accounts } =
+        await supabaseClient
+            .from("accounts")
+            .select("balance");
+
+    const { data: credits } =
+        await supabaseClient
+            .from("credits")
+            .select("current_balance");
+
+    let assets = 0;
+    let debt = 0;
+
+    accounts.forEach(a => {
+        assets += Number(a.balance);
+    });
+
+    credits.forEach(c => {
+        debt += Number(c.current_balance);
+    });
+
+    const netWorth =
+        assets - debt;
+
+    let netWorthColor =
+        "#f44336";
+
+    if(netWorth > 0){
+        netWorthColor =
+            "#4caf50";
+    }
+
+    document
+        .getElementById("netWorth")
+        .innerHTML =
+        `
+        <table>
+
+            <tr>
+                <td>Assets</td>
+                <td>
+                    ${formatMKD(assets)}
+                    MKD
+                </td>
+            </tr>
+
+            <tr>
+                <td>Debt</td>
+                <td>
+                    ${formatMKD(debt)}
+                    MKD
+                </td>
+            </tr>
+
+            <tr style="
+                font-weight:bold;
+                color:${netWorthColor};
+            ">
+                <td>Net Worth</td>
+                <td>
+                    ${formatMKD(netWorth)}
+                    MKD
+                </td>
+            </tr>
+
+        </table>
+        `;
+}
 
 
 
@@ -197,6 +267,7 @@ document.getElementById("note").value = "";
     
     
     loadAccounts();
+    loadNetWorth();
     loadDashboard();
     loadSummary();
     loadExpenses();
@@ -493,6 +564,7 @@ async function deleteExpense(id) {
     }
 
     loadDashboard();
+    loadNetWorth();
     loadExpenses();
     loadSummary();
     loadBudgetProgress();
@@ -697,6 +769,7 @@ document.getElementById("incomeAmount").value = "";
 document.getElementById("incomeNote").value = "";
 
     loadAccounts();
+    saveIncome()
     loadDashboard();
     loadIncomeHistory();
     loadIncomeBreakdown();
@@ -764,6 +837,7 @@ async function deleteIncome(id) {
     }
 
     loadIncomeHistory();
+    loadNetWorth();
     loadDashboard();
     loadIncomeBreakdown();
     loadBudgetProgress();
@@ -1378,6 +1452,7 @@ loadWeeklyGroceries();
 loadTopCategories();
 loadCredits();
 loadAccounts();
+saveTransfer()
 loadTransferAccounts();
 loadTransferHistory();
 
