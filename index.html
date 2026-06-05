@@ -250,16 +250,22 @@
     <div class="dashboard-card">
         <h2>Bonus Planner</h2>
 
-        <input
-            type="number"
-            id="bonusAmount"
-            placeholder="Bonus Amount">
+    <div id="additionalIncomeInfo"></div>
 
-        <button onclick="calculateBonusPlan()">
-            Calculate
-        </button>
+<div class="form-row-bottom">
 
-        <div id="bonusPlanner"></div>
+    <input
+        type="number"
+        id="customBonusAmount"
+        placeholder="Custom Amount (optional)">
+
+    <button onclick="calculateBonusPlan()">
+        Calculate Plan
+    </button>
+
+</div>
+
+<div id="bonusPlanner"></div>    
     </div>
 
     <div class="dashboard-card">
