@@ -164,3 +164,16 @@ button {
     color: #666;
 }
 
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.form-row input,
+.form-row select,
+.form-row button {
+    width: 100%;
+    box-sizing: border-box;
+}
