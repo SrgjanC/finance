@@ -234,12 +234,23 @@
 
 </div>
 
-<div class="dashboard-grid">
+<div class="dashboard-card">
 
-    <div class="dashboard-card">
-        <h2>Bonus Planner</h2>
-        <div id="bonusPlanner"></div>
-    </div>
+    <h2>Bonus Planner</h2>
+
+    <input
+        type="number"
+        id="bonusAmount"
+        placeholder="Bonus Amount">
+
+    <button onclick="calculateBonusPlan()">
+        Calculate
+    </button>
+
+    <div id="bonusPlanner"></div>
+
+</div>
+    
 
     <div class="dashboard-card">
         <h2>Recurring Expenses</h2>
