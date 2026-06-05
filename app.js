@@ -194,7 +194,7 @@ async function loadAdditionalIncome() {
             Additional Income This Month:
         </strong>
         <br>
-        ${formatMKD(additionalIncome)}
+        ${formatMKD(additionalIncomeThisMonth)}
         MKD
         `;
 }
