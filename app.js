@@ -1,3 +1,16 @@
+const BONUS_SPLIT = {
+
+    "Emergency Fund": 40,
+
+    "Vacation Fund": 20,
+
+    "Investment Fund": 20,
+
+    "Bonus Reserve": 20
+};
+
+
+
 async function loadCategories() {
 
     const { data } =
@@ -124,6 +137,114 @@ async function loadIncomeAccounts() {
         select.value = visaDebit.id;
     }
 }
+
+async function calculateBonusPlan() {
+
+    const bonus =
+        Number(
+            document.getElementById("bonusAmount").value
+        );
+
+    if(bonus <= 0){
+        return;
+    }
+
+    const { data, error } =
+        await supabaseClient
+            .from("savings_goals")
+            .select(`
+                *,
+                accounts!savings_goals_account_id_fkey(
+                    balance
+                )
+            `);
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Goal</th>
+                <th>Transfer</th>
+            </tr>
+    `;
+
+    let activePercent = 0;
+
+    const goals = [];
+
+    data.forEach(g => {
+
+        const current =
+            Number(
+                g.accounts?.balance || 0
+            );
+
+        const target =
+            Number(
+                g.target_amount
+            );
+
+        const remaining =
+            Math.max(
+                target - current,
+                0
+            );
+
+        if(remaining > 0){
+
+            activePercent +=
+                BONUS_SPLIT[g.name] || 0;
+
+            goals.push({
+                name: g.name,
+                remaining,
+                percent:
+                    BONUS_SPLIT[g.name] || 0
+            });
+        }
+    });
+
+    goals.forEach(g => {
+
+        const amount =
+            bonus *
+            (
+                g.percent /
+                activePercent
+            );
+
+        html += `
+            <tr>
+                <td>${g.name}</td>
+                <td>
+                    ${formatMKD(amount)}
+                    MKD
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+        <tr style="font-weight:bold">
+            <td>Total Bonus</td>
+            <td>
+                ${formatMKD(bonus)}
+                MKD
+            </td>
+        </tr>
+    `;
+
+    html += "</table>";
+
+    document
+        .getElementById("bonusPlanner")
+        .innerHTML = html;
+}
+
 
 async function loadNetWorth() {
 
