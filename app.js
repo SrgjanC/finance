@@ -201,13 +201,14 @@ async function loadNetWorth() {
 async function loadSavingsGoals() {
 
     const { data, error } =
-        await supabaseClient
-            .from("savings_goals")
-            .select(`
-                *,
-                accounts(balance)
-            `)
-            .order("target_amount");
+    await supabaseClient
+        .from("savings_goals")
+        .select(`
+            *,
+            accounts!savings_goals_account_id_fkey(
+                balance
+            )
+        `);
 
     if(error){
         console.error(error);
