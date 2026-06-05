@@ -203,7 +203,10 @@ async function loadSavingsGoals() {
     const { data, error } =
         await supabaseClient
             .from("savings_goals")
-            .select("*")
+            .select(`
+                *,
+                accounts(balance)
+            `)
             .order("target_amount");
 
     if(error){
@@ -215,10 +218,30 @@ async function loadSavingsGoals() {
 
     data.forEach(g => {
 
+        const current =
+            Number(
+                g.accounts?.balance || 0
+            );
+
+        const target =
+            Number(
+                g.target_amount
+            );
+
         const percent =
-            g.target_amount > 0
-            ? (g.current_amount / g.target_amount) * 100
+            target > 0
+            ? (current / target) * 100
             : 0;
+
+        let color = "#4caf50";
+
+        if(percent >= 80){
+            color = "#2196f3";
+        }
+
+        if(percent >= 100){
+            color = "#9c27b0";
+        }
 
         html += `
 
@@ -229,14 +252,23 @@ async function loadSavingsGoals() {
                 </div>
 
                 <div>
-                    ${formatMKD(g.current_amount)}
+
+                    ${formatMKD(current)}
+
                     /
-                    ${formatMKD(g.target_amount)}
+
+                    ${formatMKD(target)}
+
                     MKD
+
                 </div>
 
                 <div>
-                    ${percent.toFixed(1).replace(".", ",")}%
+
+                    ${percent
+                        .toFixed(1)
+                        .replace(".", ",")}%
+
                 </div>
 
                 <div class="goal-bar-container">
@@ -245,6 +277,7 @@ async function loadSavingsGoals() {
                         class="goal-bar"
                         style="
                             width:${Math.min(percent,100)}%;
+                            background:${color};
                         ">
                     </div>
 
@@ -330,6 +363,7 @@ document.getElementById("note").value = "";
     
     
     loadAccounts();
+    loadSavingsGoals();
     loadNetWorth();
     loadDashboard();
     loadSummary();
@@ -628,6 +662,7 @@ async function deleteExpense(id) {
 
     loadDashboard();
     loadNetWorth();
+    loadSavingsGoals();
     loadExpenses();
     loadSummary();
     loadBudgetProgress();
@@ -832,6 +867,7 @@ document.getElementById("incomeAmount").value = "";
 document.getElementById("incomeNote").value = "";
 
     loadAccounts();
+    loadSavingsGoals();
     loadNetWorth();
     loadDashboard();
     loadIncomeHistory();
@@ -901,6 +937,7 @@ async function deleteIncome(id) {
 
     loadIncomeHistory();
     loadNetWorth();
+    loadSavingsGoals();
     loadDashboard();
     loadIncomeBreakdown();
     loadBudgetProgress();
@@ -1454,6 +1491,7 @@ async function saveTransfer() {
     alert("Transfer Complete");
 
     loadAccounts();
+    loadSavingsGoals();
     loadTransferHistory();
 }
 async function loadTransferHistory() {
