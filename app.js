@@ -184,8 +184,7 @@ async function loadAdditionalIncome() {
 
     });
 
-    console.log("Income rows:", data);
-console.log("Calculated additional income:", additionalIncomeThisMonth);
+
 
     document
         .getElementById(
@@ -200,6 +199,10 @@ console.log("Calculated additional income:", additionalIncomeThisMonth);
         ${formatMKD(additionalIncomeThisMonth)}
         MKD
         `;
+
+    if(additionalIncomeThisMonth > 0){
+    calculateBonusPlan();
+}
 }
 
 
@@ -216,10 +219,7 @@ async function calculateBonusPlan() {
         customBonus > 0
         ? customBonus
         : additionalIncomeThisMonth;
-console.log("customBonus:", customBonus);
-console.log("additionalIncomeThisMonth:", additionalIncomeThisMonth);
-    console.log("bonus:", bonus);
-console.log("BONUS_SPLIT:", BONUS_SPLIT);
+
     if (bonus <= 0) {
         document
             .getElementById("bonusPlanner")
@@ -1104,6 +1104,7 @@ document.getElementById("incomeNote").value = "";
     loadBudgetProgress();
     loadWeeklyGroceries();
     loadAdditionalIncome();
+    calculateBonusPlan();
 }
 
 async function loadIncomeHistory() {
@@ -1173,6 +1174,7 @@ async function deleteIncome(id) {
     loadBudgetProgress();
     loadWeeklyGroceries();
     loadAdditionalIncome();
+    calculateBonusPlan();
 }
 
 async function loadIncomeBreakdown() {
