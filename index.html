@@ -200,8 +200,27 @@
 
     <hr>
 
-
 <div class="dashboard-grid">
+
+    <div class="dashboard-card">
+
+        <h2>Credit Tracker</h2>
+
+        <div id="creditTracker"></div>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>Accounts & Funds</h2>
+
+        <div id="accountsTracker"></div>
+
+    </div>
+
+</div>
+    <hr>
+   <div class="dashboard-grid">
 
     <div class="dashboard-card">
         <h2>Savings Goals</h2>
@@ -213,39 +232,36 @@
         <div id="netWorth"></div>
     </div>
 
+</div>
+
+<div class="dashboard-grid">
+
     <div class="dashboard-card">
+
         <h2>Bonus Planner</h2>
 
-        
-    <div id="additionalIncomeInfo"></div>
+        <input
+            type="number"
+            id="bonusAmount"
+            placeholder="Bonus Amount">
 
-<div class="form-row-bottom">
+        <button onclick="calculateBonusPlan()">
+            Calculate
+        </button>
 
-    <input
-        type="number"
-        id="customBonusAmount"
-        placeholder="Custom Amount (optional)">
-
-    <button onclick="calculateBonusPlan()">
-        Calculate Plan
-    </button>
-
-</div>
-
-<div id="bonusPlanner"></div>    
-  
+        <div id="bonusPlanner"></div>
 
     </div>
 
     <div class="dashboard-card">
+
         <h2>Recurring Expenses</h2>
+
         <div id="recurringExpenses"></div>
+
     </div>
 
 </div>
-
-
-    
     <hr>
 
 <h2>Transfer Money</h2>
