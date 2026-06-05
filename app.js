@@ -222,7 +222,7 @@ console.log(data);
 
         const current =
             Number(
-                g.current_amount || 0
+                 g.accounts?.balance || 0
             );
 
         const target =
