@@ -288,6 +288,14 @@ console.log("BONUS_SPLIT:", BONUS_SPLIT);
                 remaining,
                 percent
             });
+
+console.log(
+    g.name,
+    "remaining:",
+    remaining,
+    "percent:",
+    BONUS_SPLIT[g.name]
+);            
         }
 
     });
