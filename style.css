@@ -188,3 +188,11 @@ button {
     width: 100%;
     min-height: 40px;
 }
+
+.form-row-bottom {
+    display: grid;
+    grid-template-columns: 150px 1fr 120px;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
