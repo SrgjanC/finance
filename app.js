@@ -184,6 +184,9 @@ async function loadAdditionalIncome() {
 
     });
 
+    console.log("Income rows:", data);
+console.log("Calculated additional income:", additionalIncomeThisMonth);
+
     document
         .getElementById(
             "additionalIncomeInfo"
@@ -213,7 +216,8 @@ async function calculateBonusPlan() {
         customBonus > 0
         ? customBonus
         : additionalIncomeThisMonth;
-
+console.log("customBonus:", customBonus);
+console.log("additionalIncomeThisMonth:", additionalIncomeThisMonth);
     if (bonus <= 0) {
 
         document
