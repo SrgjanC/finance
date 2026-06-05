@@ -88,6 +88,34 @@ async function loadExpenseAccounts() {
         `;
     });
 }
+
+
+async function loadIncomeAccounts() {
+
+    const { data } =
+        await supabaseClient
+            .from("accounts")
+            .select("*")
+            .order("name");
+
+    const select =
+        document.getElementById("incomeAccount");
+
+    select.innerHTML = "";
+
+    data.forEach(a => {
+
+        select.innerHTML += `
+            <option value="${a.id}">
+                ${a.name}
+            </option>
+        `;
+    });
+}
+
+
+
+
 async function saveExpense() {
 const accountId =
     Number(
@@ -587,6 +615,23 @@ async function loadIncomeSubcategories() {
 
 async function saveIncome() {
 
+    const accountId =
+    Number(
+        document.getElementById("incomeAccount").value
+    );
+
+const { data: account } =
+    await supabaseClient
+        .from("accounts")
+        .select("*")
+        .eq("id", accountId)
+        .single();
+
+const amount =
+    Number(
+        document.getElementById("incomeAmount").value
+    );
+    
     const { error } =
         await supabaseClient
             .from("incomes")
@@ -595,10 +640,7 @@ async function saveIncome() {
                 income_date:
                     document.getElementById("incomeDate").value,
 
-                amount:
-                    Number(
-                        document.getElementById("incomeAmount").value
-                    ),
+                amount: amount,
 
                 source_id:
                     Number(
@@ -620,9 +662,19 @@ async function saveIncome() {
     }
 
     alert("Income Saved");
+    
+await supabaseClient
+    .from("accounts")
+    .update({
+        balance:
+            Number(account.balance)
+            + amount
+    })
+    .eq("id", accountId);
 
-loadDashboard();
-loadIncomeHistory();
+    loadAccounts();
+    loadDashboard();
+    loadIncomeHistory();
     loadIncomeBreakdown();
     loadBudgetProgress();
     loadWeeklyGroceries();
@@ -1291,6 +1343,7 @@ async function loadTransferHistory() {
 loadIncomeSources();
 loadCategories();
 loadExpenseAccounts();
+loadIncomeAccounts();
 loadDashboard();
 loadSummary();
 loadExpenses();
