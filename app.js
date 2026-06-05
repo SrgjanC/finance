@@ -9,6 +9,7 @@ const BONUS_SPLIT = {
     "Bonus Reserve": 20
 };
 
+let additionalIncomeThisMonth = 0;
 
 
 async function loadCategories() {
@@ -138,14 +139,88 @@ async function loadIncomeAccounts() {
     }
 }
 
+async function loadAdditionalIncome() {
+
+    const today = new Date();
+
+    const firstDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            1
+        )
+        .toISOString()
+        .split("T")[0];
+
+    const { data, error } =
+        await supabaseClient
+            .from("incomes")
+            .select(`
+                amount,
+                income_sources(name)
+            `)
+            .gte(
+                "income_date",
+                firstDay
+            );
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    additionalIncomeThisMonth = 0;
+
+    data.forEach(i => {
+
+        const source =
+            i.income_sources?.name || "";
+
+        if(
+            source.toLowerCase() !== "salary"
+        ){
+            additionalIncomeThisMonth += Number(i.amount);
+        }
+
+    });
+
+    document
+        .getElementById(
+            "additionalIncomeInfo"
+        )
+        .innerHTML =
+        `
+        <strong>
+            Additional Income This Month:
+        </strong>
+        <br>
+        ${formatMKD(additionalIncome)}
+        MKD
+        `;
+}
+
+
 async function calculateBonusPlan() {
 
-    const bonus =
+    const customBonus =
         Number(
-            document.getElementById("bonusAmount").value
+            document.getElementById(
+                "customBonusAmount"
+            ).value
         );
 
-    if(bonus <= 0){
+    const bonus =
+        customBonus > 0
+        ? customBonus
+        : additionalIncomeThisMonth;
+
+    if (bonus <= 0) {
+
+        document
+            .getElementById("bonusPlanner")
+            .innerHTML =
+            "No additional income available.";
+
         return;
     }
 
@@ -159,7 +234,7 @@ async function calculateBonusPlan() {
                 )
             `);
 
-    if(error){
+    if (error) {
         console.error(error);
         return;
     }
@@ -194,19 +269,25 @@ async function calculateBonusPlan() {
                 0
             );
 
-        if(remaining > 0){
+        if (remaining > 0) {
 
-            activePercent +=
+            const percent =
                 BONUS_SPLIT[g.name] || 0;
+
+            activePercent += percent;
 
             goals.push({
                 name: g.name,
+                current,
+                target,
                 remaining,
-                percent:
-                    BONUS_SPLIT[g.name] || 0
+                percent
             });
         }
+
     });
+
+    let plannedTotal = 0;
 
     goals.forEach(g => {
 
@@ -217,9 +298,20 @@ async function calculateBonusPlan() {
                 activePercent
             );
 
+        plannedTotal += amount;
+
         html += `
             <tr>
-                <td>${g.name}</td>
+                <td>
+                    ${g.name}
+                    <br>
+                    <small>
+                        Remaining:
+                        ${formatMKD(g.remaining)}
+                        MKD
+                    </small>
+                </td>
+
                 <td>
                     ${formatMKD(amount)}
                     MKD
@@ -232,7 +324,7 @@ async function calculateBonusPlan() {
         <tr style="font-weight:bold">
             <td>Total Bonus</td>
             <td>
-                ${formatMKD(bonus)}
+                ${formatMKD(plannedTotal)}
                 MKD
             </td>
         </tr>
@@ -996,6 +1088,7 @@ document.getElementById("incomeNote").value = "";
     loadIncomeBreakdown();
     loadBudgetProgress();
     loadWeeklyGroceries();
+    loadAdditionalIncome();
 }
 
 async function loadIncomeHistory() {
@@ -1064,6 +1157,7 @@ async function deleteIncome(id) {
     loadIncomeBreakdown();
     loadBudgetProgress();
     loadWeeklyGroceries();
+    loadAdditionalIncome();
 }
 
 async function loadIncomeBreakdown() {
@@ -1677,6 +1771,7 @@ loadCredits();
 loadAccounts();
 loadNetWorth();
 loadSavingsGoals();
+loadAdditionalIncome();
 
 
 loadTransferAccounts();
