@@ -196,3 +196,8 @@ button {
     margin-bottom: 10px;
     align-items: center;
 }
+.form-row-bottom button {
+    width: 120px;
+    height: 40px;
+    justify-self: end;
+}
