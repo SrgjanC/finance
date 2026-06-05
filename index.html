@@ -71,25 +71,37 @@
 <hr>
 <h2>Add Expense</h2>
 
-<input type="date" id="date">
+<div class="form-row">
 
-<input type="number"
-       id="amount"
-       placeholder="Amount">
+    <input
+        type="date"
+        id="date">
 
-<select id="category"></select>
+    <select id="category"></select>
 
-<select id="subcategory"></select>
+    <select id="subcategory"></select>
 
-<select id="expenseAccount"></select>
+    <select id="expenseAccount"></select>
 
-    <input type="text"
-       id="note"
-       placeholder="Note">
+</div>
 
-<button onclick="saveExpense()">
-    Save
-</button>
+<div class="form-row-income-bottom">
+
+    <input
+        type="number"
+        id="amount"
+        placeholder="Amount">
+
+    <input
+        type="text"
+        id="note"
+        placeholder="Note">
+
+    <button onclick="saveExpense()">
+        Save Expense
+    </button>
+
+</div>
 
 <hr>
 <div class="dashboard-grid">
