@@ -769,7 +769,7 @@ document.getElementById("incomeAmount").value = "";
 document.getElementById("incomeNote").value = "";
 
     loadAccounts();
-    saveIncome()
+    loadNetWorth();
     loadDashboard();
     loadIncomeHistory();
     loadIncomeBreakdown();
@@ -1442,6 +1442,7 @@ loadIncomeSources();
 loadCategories();
 loadExpenseAccounts();
 loadIncomeAccounts();
+
 loadDashboard();
 loadSummary();
 loadExpenses();
@@ -1450,9 +1451,11 @@ loadIncomeBreakdown();
 loadBudgetProgress();
 loadWeeklyGroceries();
 loadTopCategories();
+
 loadCredits();
 loadAccounts();
-saveTransfer()
+loadNetWorth();
+
 loadTransferAccounts();
 loadTransferHistory();
 
