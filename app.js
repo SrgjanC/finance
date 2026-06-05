@@ -214,10 +214,9 @@ async function loadSavingsGoals() {
         console.error(error);
         return;
     }
-console.log("Savings Goals:", data);
-console.log("Savings Goals Error:", error);
+
     let html = "";
-console.log(data);
+
     data.forEach(g => {
 
         const current =
