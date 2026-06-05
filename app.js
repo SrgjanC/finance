@@ -1294,9 +1294,7 @@ async function loadAccounts() {
         await supabaseClient
             .from("accounts")
             .select("*")
-            .order("balance", {
-                ascending: false
-            });
+            .order("id");
 
     if(error){
         console.error(error);
