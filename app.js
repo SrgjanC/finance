@@ -198,6 +198,69 @@ async function loadNetWorth() {
 
 
 
+async function loadSavingsGoals() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("savings_goals")
+            .select("*")
+            .order("target_amount");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = "";
+
+    data.forEach(g => {
+
+        const percent =
+            g.target_amount > 0
+            ? (g.current_amount / g.target_amount) * 100
+            : 0;
+
+        html += `
+
+            <div class="goal-card">
+
+                <div class="goal-title">
+                    ${g.name}
+                </div>
+
+                <div>
+                    ${formatMKD(g.current_amount)}
+                    /
+                    ${formatMKD(g.target_amount)}
+                    MKD
+                </div>
+
+                <div>
+                    ${percent.toFixed(1).replace(".", ",")}%
+                </div>
+
+                <div class="goal-bar-container">
+
+                    <div
+                        class="goal-bar"
+                        style="
+                            width:${Math.min(percent,100)}%;
+                        ">
+                    </div>
+
+                </div>
+
+            </div>
+
+        `;
+    });
+
+    document
+        .getElementById("savingsGoals")
+        .innerHTML = html;
+}
+
+
 async function saveExpense() {
 const accountId =
     Number(
@@ -1455,6 +1518,8 @@ loadTopCategories();
 loadCredits();
 loadAccounts();
 loadNetWorth();
+loadSavingsGoals();
+
 
 loadTransferAccounts();
 loadTransferHistory();
