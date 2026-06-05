@@ -89,7 +89,32 @@ async function loadExpenseAccounts() {
     });
 }
 async function saveExpense() {
+const accountId =
+    Number(
+        document.getElementById("expenseAccount").value
+    );
 
+const { data: account } =
+    await supabaseClient
+        .from("accounts")
+        .select("*")
+        .eq("id", accountId)
+        .single();
+
+const amount =
+    Number(
+        document.getElementById("amount").value
+    );
+
+if(amount > account.balance){
+
+    alert("Insufficient balance");
+
+    return;
+}
+    
+
+    
     await supabaseClient
         .from("transactions")
         .insert({
@@ -97,10 +122,7 @@ async function saveExpense() {
             transaction_date:
                 document.getElementById("date").value,
 
-            amount:
-                Number(
-                  document.getElementById("amount").value
-                ),
+            amount: amount,
 
             category_id:
                 Number(
@@ -117,13 +139,24 @@ async function saveExpense() {
         });
 
     alert("Saved");
-
+await supabaseClient
+    .from("accounts")
+    .update({
+        balance:
+            Number(account.balance)
+            - amount
+    })
+    .eq("id", accountId);
+    
+    
+    loadAccounts();
     loadDashboard();
     loadSummary();
     loadExpenses();
     loadBudgetProgress();
     loadWeeklyGroceries();
     loadTopCategories();
+    
 }
 
 
