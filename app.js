@@ -218,6 +218,8 @@ async function calculateBonusPlan() {
         : additionalIncomeThisMonth;
 console.log("customBonus:", customBonus);
 console.log("additionalIncomeThisMonth:", additionalIncomeThisMonth);
+    console.log("bonus:", bonus);
+console.log("BONUS_SPLIT:", BONUS_SPLIT);
     if (bonus <= 0) {
 
         document
