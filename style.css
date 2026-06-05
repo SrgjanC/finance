@@ -183,3 +183,8 @@ button {
     gap: 10px;
     margin-bottom: 10px;
 }
+.form-row button,
+.form-row-income-bottom button {
+    width: 100%;
+    min-height: 40px;
+}
