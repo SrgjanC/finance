@@ -1077,7 +1077,8 @@ async function loadExpenses() {
             .select(`
                 *,
                 categories(name),
-                subcategories(name)
+                subcategories(name),
+                accounts(name)
             `)
             .order("transaction_date", {
                 ascending: false
@@ -1101,6 +1102,7 @@ async function loadExpenses() {
             <td>${t.categories?.name || ""}</td>
             <td>${t.subcategories?.name || ""}</td>
             <td>${Number(t.amount).toFixed(0)} MKD</td>
+            <td>${t.accounts?.name || ""}</td>
             <td>${t.note || ""}</td>
             <td>
                 <button onclick="deleteExpense(${t.id})">
