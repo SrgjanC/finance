@@ -542,6 +542,14 @@ async function payRecurring(id) {
             .eq("id", id)
             .single();
 
+    const selectedAccountId =
+    Number(
+        document.getElementById(
+            `recurringAccount${id}`
+        ).value
+    );
+
+    
     if(error){
         console.error(error);
         return;
@@ -570,7 +578,7 @@ async function payRecurring(id) {
                     recurring.subcategory_id,
 
                 account_id:
-                    recurring.account_id,
+                    selectedAccountId,
 
                 note:
                     `Recurring: ${recurring.name}`
@@ -587,7 +595,7 @@ async function payRecurring(id) {
             .select("balance")
             .eq(
                 "id",
-                recurring.account_id
+                selectedAccountId
             )
             .single();
 
@@ -602,7 +610,7 @@ async function payRecurring(id) {
         })
         .eq(
             "id",
-            recurring.account_id
+            selectedAccountId
         );
 await supabaseClient
     .from("recurring_expenses")
