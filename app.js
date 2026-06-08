@@ -353,6 +353,88 @@ console.log("activePercent:", activePercent);
 }
 
 
+
+async function loadRecurringExpenses() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("recurring_expenses")
+            .select("*")
+            .eq("active", true)
+            .order("due_day");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const today =
+        new Date().getDate();
+
+    let html = `
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Due</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+    `;
+
+    data.forEach(r => {
+
+        let dueClass =
+            "recurring-good";
+
+        const daysLeft =
+            r.due_day - today;
+
+        if(daysLeft < 0){
+            dueClass =
+                "recurring-danger";
+        }
+        else if(daysLeft <= 3){
+            dueClass =
+                "recurring-warning";
+        }
+
+        html += `
+            <tr>
+                <td>${r.name}</td>
+
+                <td class="${dueClass}">
+                    ${r.due_day}
+                </td>
+
+                <td>
+                    <input
+                        type="number"
+                        id="recurringAmount${r.id}"
+                        value="${r.amount}"
+                        style="width:90px">
+                </td>
+
+                <td>
+                    <button
+                        class="pay-btn"
+                        onclick="payRecurring(${r.id})">
+                        Pay
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document
+        .getElementById("recurringExpenses")
+        .innerHTML = html;
+}
+
+
+
+
 async function loadNetWorth() {
 
     const { data: accounts } =
