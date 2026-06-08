@@ -373,6 +373,9 @@ async function loadRecurringExpenses() {
 const today =
     now.getDate();
 
+    const currentMonth =
+    now.getMonth() + 1;
+
 const firstDay =
     new Date(
         now.getFullYear(),
@@ -409,8 +412,34 @@ const firstDay =
                 <th>Action</th>
             </tr>
     `;
-let currentCategory = "";
+
+    
+    let currentCategory = "";
+    
+    
+    
     data.forEach(r => {
+
+    if(r.seasonal){
+
+        const active =
+
+            r.start_month <= r.end_month
+
+            ? (
+                currentMonth >= r.start_month &&
+                currentMonth <= r.end_month
+            )
+
+            : (
+                currentMonth >= r.start_month ||
+                currentMonth <= r.end_month
+            );
+
+        if(!active){
+            return;
+        }
+    }
 
 const category =
     r.category || "Other";
