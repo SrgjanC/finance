@@ -368,8 +368,28 @@ async function loadRecurringExpenses() {
         return;
     }
 
-    const today =
-        new Date().getDate();
+   const now = new Date();
+
+const today =
+    now.getDate();
+
+const firstDay =
+    new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+    )
+    .toISOString()
+    .split("T")[0];
+
+    const { data: paidTransactions } =
+    await supabaseClient
+        .from("transactions")
+        .select("note")
+        .gte(
+            "transaction_date",
+            firstDay
+        );
 
     let html = `
         <table>
@@ -380,9 +400,34 @@ async function loadRecurringExpenses() {
                 <th>Action</th>
             </tr>
     `;
-
+let currentCategory = "";
     data.forEach(r => {
 
+const category =
+    r.category || "Other";
+
+if(category !== currentCategory){
+
+    currentCategory =
+        category;
+
+    html += `
+        <tr>
+            <td colspan="4"
+                style="
+                    font-weight:bold;
+                    background:#f0f0f0;
+                ">
+                ${currentCategory}
+            </td>
+        </tr>
+    `;
+}
+        const alreadyPaid =
+    paidTransactions.some(t =>
+        (t.note || "") ===
+        `Recurring: ${r.name}`
+    );
         let dueClass =
             "recurring-good";
 
@@ -415,11 +460,21 @@ async function loadRecurringExpenses() {
                 </td>
 
                 <td>
-                    <button
-                        class="pay-btn"
-                        onclick="payRecurring(${r.id})">
-                        Pay
-                    </button>
+                    ${
+    alreadyPaid
+
+    ? `<span style="color:green">
+         ✓ Paid
+       </span>`
+
+    : `
+      <button
+          class="pay-btn"
+          onclick="payRecurring(${r.id})">
+          Pay
+      </button>
+      `
+}
                 </td>
             </tr>
         `;
