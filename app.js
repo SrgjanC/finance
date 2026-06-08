@@ -366,13 +366,36 @@ async function loadRecurringSummary() {
         return;
     }
 
+    const now = new Date();
+
+const firstDay =
+    new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        1
+    )
+    .toISOString()
+    .split("T")[0];
+
+const { data: paidTransactions } =
+    await supabaseClient
+        .from("transactions")
+        .select(`
+            amount,
+            note
+        `)
+        .gte(
+            "transaction_date",
+            firstDay
+        );
+
     const currentMonth =
         new Date().getMonth() + 1;
 
     const totals = {};
 
     let grandTotal = 0;
-
+let paidTotal = 0;
     data.forEach(r => {
 
         if(r.seasonal){
@@ -395,7 +418,17 @@ async function loadRecurringSummary() {
                 return;
             }
         }
+const alreadyPaid =
+    paidTransactions.some(t =>
+        (t.note || "") ===
+        `Recurring: ${r.name}`
+    );
 
+if(alreadyPaid){
+
+    paidTotal +=
+        Number(r.amount);
+}
         const category =
             r.category || "Other";
 
@@ -407,7 +440,11 @@ async function loadRecurringSummary() {
         grandTotal +=
             Number(r.amount);
     });
+const remainingTotal =
+    grandTotal - paidTotal;
 
+
+    
     let html = "";
 
     Object.entries(totals)
@@ -429,21 +466,45 @@ async function loadRecurringSummary() {
         });
 
     html += `
-        <hr>
+    <hr>
 
-        <div
-            style="
-                display:flex;
-                justify-content:space-between;
-                font-size:18px;
-                font-weight:bold;
-            ">
-            <span>Total</span>
-            <span>
-                ${formatMKD(grandTotal)}
-            </span>
-        </div>
-    `;
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+        ">
+        <span>Total Planned</span>
+        <strong>
+            ${formatMKD(grandTotal)}
+        </strong>
+    </div>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            color:green;
+        ">
+        <span>Already Paid</span>
+        <strong>
+            ${formatMKD(paidTotal)}
+        </strong>
+    </div>
+
+    <div
+        style="
+            display:flex;
+            justify-content:space-between;
+            color:red;
+            font-size:18px;
+            font-weight:bold;
+        ">
+        <span>Remaining</span>
+        <span>
+            ${formatMKD(remainingTotal)}
+        </span>
+    </div>
+`;
 
     document
         .getElementById(
