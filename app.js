@@ -359,7 +359,7 @@ async function loadRecurringExpenses() {
     const { data, error } =
         await supabaseClient
             .from("recurring_expenses")
-            .select(`*,accounts(name)`)
+            .select(`*`)
             .eq("active", true)
             .order("sort_order");
 
