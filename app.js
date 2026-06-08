@@ -802,7 +802,12 @@ if(amount > account.balance){
                 Number(
                   document.getElementById("subcategory").value
                 ),
-
+account_id:
+    Number(
+        document.getElementById(
+            "expenseAccount"
+        ).value
+    ),
             note:
                 document.getElementById("note").value
         });
