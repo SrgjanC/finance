@@ -1167,6 +1167,46 @@ async function deleteExpense(id) {
     if (!confirm("Delete this expense?"))
         return;
 
+    const { data: transaction } =
+        await supabaseClient
+            .from("transactions")
+            .select(`
+                amount,
+                account_id
+            `)
+            .eq("id", id)
+            .single();
+
+    if(
+        transaction?.account_id
+    ){
+
+        const { data: account } =
+            await supabaseClient
+                .from("accounts")
+                .select("balance")
+                .eq(
+                    "id",
+                    transaction.account_id
+                )
+                .single();
+
+        await supabaseClient
+            .from("accounts")
+            .update({
+
+                balance:
+                    Number(account.balance)
+                    +
+                    Number(transaction.amount)
+
+            })
+            .eq(
+                "id",
+                transaction.account_id
+            );
+    }
+
     const { error } =
         await supabaseClient
             .from("transactions")
@@ -1181,6 +1221,7 @@ async function deleteExpense(id) {
     loadDashboard();
     loadNetWorth();
     loadSavingsGoals();
+    loadAccounts();
     loadExpenses();
     loadSummary();
     loadBudgetProgress();
@@ -1358,7 +1399,12 @@ const amount =
                     Number(
                         document.getElementById("incomeSubcategory").value
                     ),
-
+account_id:
+    Number(
+        document.getElementById(
+            "incomeAccount"
+        ).value
+    ),
                 note:
                     document.getElementById("incomeNote").value
             });
@@ -1444,6 +1490,46 @@ async function deleteIncome(id) {
     if (!confirm("Delete this income?"))
         return;
 
+    const { data: income } =
+        await supabaseClient
+            .from("incomes")
+            .select(`
+                amount,
+                account_id
+            `)
+            .eq("id", id)
+            .single();
+
+    if(
+        income?.account_id
+    ){
+
+        const { data: account } =
+            await supabaseClient
+                .from("accounts")
+                .select("balance")
+                .eq(
+                    "id",
+                    income.account_id
+                )
+                .single();
+
+        await supabaseClient
+            .from("accounts")
+            .update({
+
+                balance:
+                    Number(account.balance)
+                    -
+                    Number(income.amount)
+
+            })
+            .eq(
+                "id",
+                income.account_id
+            );
+    }
+
     const { error } =
         await supabaseClient
             .from("incomes")
@@ -1456,6 +1542,7 @@ async function deleteIncome(id) {
     }
 
     loadIncomeHistory();
+    loadAccounts();
     loadNetWorth();
     loadSavingsGoals();
     loadDashboard();
