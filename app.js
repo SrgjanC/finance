@@ -353,7 +353,104 @@ console.log("activePercent:", activePercent);
 }
 
 
+async function loadRecurringSummary() {
 
+    const { data, error } =
+        await supabaseClient
+            .from("recurring_expenses")
+            .select("*")
+            .eq("active", true);
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const currentMonth =
+        new Date().getMonth() + 1;
+
+    const totals = {};
+
+    let grandTotal = 0;
+
+    data.forEach(r => {
+
+        if(r.seasonal){
+
+            const active =
+
+                r.start_month <= r.end_month
+
+                ? (
+                    currentMonth >= r.start_month &&
+                    currentMonth <= r.end_month
+                )
+
+                : (
+                    currentMonth >= r.start_month ||
+                    currentMonth <= r.end_month
+                );
+
+            if(!active){
+                return;
+            }
+        }
+
+        const category =
+            r.category || "Other";
+
+        totals[category] =
+            (totals[category] || 0)
+            +
+            Number(r.amount);
+
+        grandTotal +=
+            Number(r.amount);
+    });
+
+    let html = "";
+
+    Object.entries(totals)
+        .forEach(([cat,total]) => {
+
+            html += `
+                <div
+                    style="
+                        display:flex;
+                        justify-content:space-between;
+                        margin-bottom:4px;
+                    ">
+                    <span>${cat}</span>
+                    <strong>
+                        ${formatMKD(total)}
+                    </strong>
+                </div>
+            `;
+        });
+
+    html += `
+        <hr>
+
+        <div
+            style="
+                display:flex;
+                justify-content:space-between;
+                font-size:18px;
+                font-weight:bold;
+            ">
+            <span>Total</span>
+            <span>
+                ${formatMKD(grandTotal)}
+            </span>
+        </div>
+    `;
+
+    document
+        .getElementById(
+            "recurringSummary"
+        )
+        .innerHTML = html;
+}
 async function loadRecurringExpenses() {
 
     const { data, error } =
@@ -655,6 +752,7 @@ await supabaseClient
     loadBudgetProgress();
     loadWeeklyGroceries();
     loadRecurringExpenses();
+    loadRecurringSummary();
 
     alert(
         `${recurring.name} paid successfully`
@@ -2184,6 +2282,7 @@ loadDashboard();
 loadSummary();
 loadExpenses();
 loadRecurringExpenses();
+loadRecurringSummary();
 loadIncomeHistory();
 loadIncomeBreakdown();
 loadBudgetProgress();
