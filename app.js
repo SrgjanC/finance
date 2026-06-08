@@ -1860,6 +1860,7 @@ loadIncomeAccounts();
 loadDashboard();
 loadSummary();
 loadExpenses();
+loadRecurringExpenses();
 loadIncomeHistory();
 loadIncomeBreakdown();
 loadBudgetProgress();
