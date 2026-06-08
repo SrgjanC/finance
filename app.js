@@ -570,7 +570,13 @@ async function payRecurring(id) {
             "id",
             recurring.account_id
         );
-
+await supabaseClient
+    .from("recurring_expenses")
+    .update({
+        amount: amount
+    })
+    .eq("id", id);
+    
     loadDashboard();
     loadExpenses();
     loadSummary();
