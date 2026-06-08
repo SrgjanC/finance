@@ -391,12 +391,21 @@ const firstDay =
             firstDay
         );
 
+
+    const { data: accounts } =
+    await supabaseClient
+        .from("accounts")
+        .select("id,name")
+        .order("id");
+    
+    
     let html = `
         <table>
             <tr>
                 <th>Name</th>
                 <th>Due</th>
                 <th>Amount</th>
+                <th>Account</th>
                 <th>Action</th>
             </tr>
     `;
@@ -413,7 +422,7 @@ if(category !== currentCategory){
 
     html += `
         <tr>
-            <td colspan="4"
+            <td colspan="5"
                 style="
                     font-weight:bold;
                     background:#f0f0f0;
@@ -452,14 +461,39 @@ if(category !== currentCategory){
                 </td>
 
                 <td>
-                    <input
-                        type="number"
-                        id="recurringAmount${r.id}"
-                        value="${r.amount}"
-                        style="width:90px">
-                </td>
+    <input
+        type="number"
+        id="recurringAmount${r.id}"
+        value="${r.amount}"
+        style="width:90px">
+</td>
 
-                <td>
+<td>
+
+    <select
+        id="recurringAccount${r.id}">
+
+        ${
+            accounts
+            .map(a => `
+                <option
+                    value="${a.id}"
+                    ${
+                        a.id === r.account_id
+                        ? "selected"
+                        : ""
+                    }>
+                    ${a.name}
+                </option>
+            `)
+            .join("")
+        }
+
+    </select>
+
+</td>
+
+<td>
                     ${
     alreadyPaid
 
