@@ -418,16 +418,21 @@ let paidTotal = 0;
                 return;
             }
         }
-const alreadyPaid =
-    paidTransactions.some(t =>
+const paidTransaction =
+    paidTransactions.find(t =>
         (t.note || "") ===
         `Recurring: ${r.name}`
     );
 
+const alreadyPaid =
+    !!paidTransaction;
+
 if(alreadyPaid){
 
     paidTotal +=
-        Number(r.amount);
+        Number(
+            paidTransaction.amount
+        );
 }
         const category =
             r.category || "Other";
