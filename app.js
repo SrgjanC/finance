@@ -359,7 +359,7 @@ async function loadRecurringExpenses() {
     const { data, error } =
         await supabaseClient
             .from("recurring_expenses")
-            .select("*")
+            .select(`*,accounts(name)`)
             .eq("active", true)
             .order("sort_order");
 
@@ -485,6 +485,103 @@ if(category !== currentCategory){
     document
         .getElementById("recurringExpenses")
         .innerHTML = html;
+}
+
+async function payRecurring(id) {
+
+    const amount =
+        Number(
+            document.getElementById(
+                `recurringAmount${id}`
+            ).value
+        );
+
+    if(amount <= 0){
+        alert("Invalid amount");
+        return;
+    }
+
+    const { data: recurring, error } =
+        await supabaseClient
+            .from("recurring_expenses")
+            .select("*")
+            .eq("id", id)
+            .single();
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const today =
+        new Date()
+            .toISOString()
+            .split("T")[0];
+
+    const { error: transactionError } =
+        await supabaseClient
+            .from("transactions")
+            .insert({
+
+                transaction_date:
+                    today,
+
+                amount:
+                    amount,
+
+                category_id:
+                    recurring.category_id,
+
+                subcategory_id:
+                    recurring.subcategory_id,
+
+                account_id:
+                    recurring.account_id,
+
+                note:
+                    `Recurring: ${recurring.name}`
+            });
+
+    if(transactionError){
+        console.error(transactionError);
+        return;
+    }
+
+    const { data: account } =
+        await supabaseClient
+            .from("accounts")
+            .select("balance")
+            .eq(
+                "id",
+                recurring.account_id
+            )
+            .single();
+
+    await supabaseClient
+        .from("accounts")
+        .update({
+
+            balance:
+                Number(account.balance)
+                - amount
+
+        })
+        .eq(
+            "id",
+            recurring.account_id
+        );
+
+    loadDashboard();
+    loadExpenses();
+    loadSummary();
+    loadAccounts();
+    loadBudgetProgress();
+    loadWeeklyGroceries();
+    loadRecurringExpenses();
+
+    alert(
+        `${recurring.name} paid successfully`
+    );
 }
 
 
