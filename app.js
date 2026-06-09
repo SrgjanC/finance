@@ -1436,7 +1436,7 @@ async function loadDashboard() {
         .split("T")[0];
 console.log(
     "Dashboard firstDay:",
-    firstDay
+    firstDay;
     // Load incomes
 
     const { data: incomes, error: incomeError } =
