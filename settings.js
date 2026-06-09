@@ -336,7 +336,7 @@ async function loadRecurringExpenses() {
 
         html += `
             <tr>
-                <td>${r.account_id}</td>
+                <td>${r.accounts?.name || ""}</td>
                 <td>${r.amount}</td>
                 <td>${r.due_day}</td>
                 <td>${r.accounts?.name || ""}</td>
