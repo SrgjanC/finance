@@ -16,61 +16,39 @@
 
 <h1>Settings</h1>
 
-<select
-    id="settingsType"
-    onchange="loadSettingsData()">
+<div class="dashboard-card">
 
-    <option value="categories">
-        Categories
-    </option>
+    <h2>Categories</h2>
 
-    <option value="subcategories">
-        Subcategories
-    </option>
+    <div id="categoriesList"></div>
 
-    <option value="accounts">
-        Accounts
-    </option>
+</div>
 
-    <option value="credits">
-        Credits
-    </option>
+<div class="dashboard-card">
 
-    <option value="income_sources">
-        Income Sources
-    </option>
+    <h2>Subcategories</h2>
 
-    <option value="income_subcategories">
-        Income Types
-    </option>
+    <div id="subcategoriesList"></div>
 
-    <option value="savings_goals">
-        Savings Goals
-    </option>
+</div>
 
-    <option value="recurring_expenses">
-        Recurring Expenses
-    </option>
+<div class="dashboard-card">
 
-</select>
+    <h2>Accounts</h2>
 
-<hr>
+    <div id="accountsList"></div>
 
-<div id="settingsTable"></div>
+</div>
 
-<hr>
+<div class="dashboard-card">
 
-<h3>Add New</h3>
+    <h2>Credits</h2>
 
-<input
-    type="text"
-    id="newName"
-    placeholder="Name">
+    <div id="creditsList"></div>
 
-<button onclick="addSetting()">
-    Add
-</button>
+</div>
 
+...
 <script src="supabase.js"></script>
 <script src="settings.js"></script>
 
