@@ -5,9 +5,30 @@ const table =
         "settingsType"
     ).value;
 
-if(table === "subcategories"){
-    loadSubcategories();
-    return;
+switch(table){
+
+    case "subcategories":
+        loadSubcategories();
+        break;
+
+    case "accounts":
+        loadAccountsSettings();
+        break;
+
+    case "credits":
+        loadCreditsSettings();
+        break;
+
+    case "savings_goals":
+        loadSavingsGoalsSettings();
+        break;
+
+    case "recurring_expenses":
+        loadRecurringExpensesSettings();
+        break;
+
+    default:
+        loadGenericTable();
 }
     const { data, error } =
         await supabaseClient
