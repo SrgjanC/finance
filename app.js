@@ -1434,7 +1434,9 @@ async function loadDashboard() {
         )
         .toISOString()
         .split("T")[0];
-
+console.log(
+    "Dashboard firstDay:",
+    firstDay
     // Load incomes
 
     const { data: incomes, error: incomeError } =
