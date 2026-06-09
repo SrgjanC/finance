@@ -10,6 +10,18 @@ window.onload = function () {
     loadRecurringExpenses();
 
 };
+function formatMKD(amount) {
+
+    return Number(amount || 0)
+        .toLocaleString(
+            "en-US",
+            {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+
+}
 
 async function loadCategories() {
 
@@ -123,7 +135,7 @@ async function loadAccounts() {
             <tr>
                 <td>${r.id}</td>
                 <td>${r.name}</td>
-                <td>${Number(r.balance).toFixed(2)}</td>
+                <td>${formatMKD(r.balance)} MKD</td>
                 <td>${r.account_type || ""}</td>
                 <td>${r.purpose || ""}</td>
             </tr>
@@ -154,10 +166,10 @@ async function loadCredits() {
     <table>
         <tr>
             <th>Name</th>
-            <th>Original</th>
+            
             <th>Balance</th>
             <th>Monthly</th>
-            <th>Interest</th>
+            
             <th>End Date</th>
         </tr>
 `;
@@ -167,10 +179,10 @@ async function loadCredits() {
         html += `
     <tr>
         <td>${r.name}</td>
-        <td>${r.original_amount}</td>
-        <td>${r.current_balance}</td>
-        <td>${r.monthly_payment}</td>
-        <td>${r.interest_rate}%</td>
+       
+<td>${formatMKD(r.current_balance)} MKD</td>
+<td>${formatMKD(r.monthly_payment)} MKD</td>
+       
         <td>${r.end_date}</td>
     </tr>
 `;
@@ -295,7 +307,7 @@ async function loadSavingsGoals() {
             <tr>
                 <td>${r.id}</td>
                 <td>${r.name}</td>
-                <td>${r.target_amount}</td>
+                <td>${formatMKD(r.target_amount)} MKD</td>
                 <td>${r.accounts?.name || ""}</td>
             </tr>
         `;
@@ -344,7 +356,7 @@ const accountName =
         html += `
             <tr>
                 <td>${r.name || ""}</td>
-                <td>${r.amount}</td>
+                <td>${formatMKD(r.amount)} MKD</td>
                 <td>${r.due_day}</td>
                 <td>${accountName}</td>
                 <td>${r.category || ""}</td>
