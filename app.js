@@ -70,7 +70,38 @@ document
     "change",
     loadSubcategories
 );
+function getCurrentMonthStart() {
 
+    const today =
+        new Date();
+
+    return `${today.getFullYear()}-${
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0")
+    }-01`;
+}
+function getCurrentMonthEnd() {
+
+    const today =
+        new Date();
+
+    const lastDay =
+        new Date(
+            today.getFullYear(),
+            today.getMonth() + 1,
+            0
+        ).getDate();
+
+    return `${today.getFullYear()}-${
+        String(
+            today.getMonth() + 1
+        ).padStart(2, "0")
+    }-${
+        String(lastDay)
+        .padStart(2, "0")
+    }`;
+}
 function formatMKD(value) {
 
     return Number(value)
@@ -144,13 +175,7 @@ async function loadAdditionalIncome() {
     const today = new Date();
 
     const firstDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        )
-        .toISOString()
-        .split("T")[0];
+    getCurrentMonthStart();
 
     const { data, error } =
         await supabaseClient
@@ -369,13 +394,7 @@ async function loadRecurringSummary() {
     const now = new Date();
 
 const firstDay =
-    new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        1
-    )
-    .toISOString()
-    .split("T")[0];
+    getCurrentMonthStart();
 
 const { data: paidTransactions } =
     await supabaseClient
@@ -540,13 +559,7 @@ const today =
     now.getMonth() + 1;
 
 const firstDay =
-    new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        1
-    )
-    .toISOString()
-    .split("T")[0];
+    getCurrentMonthStart();
 
     const { data: paidTransactions } =
     await supabaseClient
@@ -1088,14 +1101,8 @@ async function loadSummary() {
 
     const today = new Date();
 
-    const firstDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        )
-        .toISOString()
-        .split("T")[0];
+const firstDay =
+    getCurrentMonthStart();
 
     const { data, error } =
         await supabaseClient
@@ -1182,14 +1189,8 @@ async function loadBudgetProgress() {
 
     const today = new Date();
 
-    const firstDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        )
-        .toISOString()
-        .split("T")[0];
+const firstDay =
+    getCurrentMonthStart();
 
     const { data: incomes } =
         await supabaseClient
@@ -1242,14 +1243,8 @@ async function loadTopCategories() {
 
     const today = new Date();
 
-    const firstDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        )
-        .toISOString()
-        .split("T")[0];
+const firstDay =
+    getCurrentMonthStart();
 
     const { data, error } =
         await supabaseClient
@@ -1426,14 +1421,8 @@ async function loadDashboard() {
 
     const today = new Date();
 
-    const firstDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        )
-        .toISOString()
-        .split("T")[0];
+const firstDay =
+    getCurrentMonthStart();
 console.log(
     "Dashboard firstDay:",
     firstDay
@@ -1755,14 +1744,8 @@ async function loadIncomeBreakdown() {
 
     const today = new Date();
 
-    const firstDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        )
-        .toISOString()
-        .split("T")[0];
+const firstDay =
+    getCurrentMonthStart();
 
     const { data, error } =
         await supabaseClient
@@ -1845,19 +1828,11 @@ async function loadWeeklyGroceries() {
 
     const today = new Date();
 
-    const firstDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            1
-        );
+const firstDay =
+    getCurrentMonthStart();
 
-    const lastDay =
-        new Date(
-            today.getFullYear(),
-            today.getMonth() + 1,
-            0
-        );
+const lastDay =
+        getCurrentMonthEnd();
 
     const { data, error } =
         await supabaseClient
@@ -1870,13 +1845,18 @@ async function loadWeeklyGroceries() {
             `)
             .gte(
                 "transaction_date",
-                firstDay.toISOString().split("T")[0]
+                firstDay
             )
             .lte(
                 "transaction_date",
-                lastDay.toISOString().split("T")[0]
+                lastDay
             );
-
+console.log(
+    "Weekly Groceries:",
+    firstDay,
+    "->",
+    lastDay
+);
     if(error){
         console.error(error);
         return;
