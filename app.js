@@ -2433,6 +2433,7 @@ async function deleteTransfer(id) {
     loadTransfers();
     loadNetWorth();
     loadSavingsGoals();
+    loadTransferHistory()
 
     alert(
         "Transfer deleted"
