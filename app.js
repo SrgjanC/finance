@@ -1419,14 +1419,55 @@ async function deleteExpense(id) {
 
 async function loadDashboard() {
 
+    const { data: accounts } =
+    await supabaseClient
+        .from("accounts")
+        .select(`
+            id,
+            name,
+            balance
+        `);
+
+    const availableCash =
+    accounts
+        .filter(a =>
+            a.name === "Visa Debit"
+            ||
+            a.name === "Cash"
+        )
+        .reduce(
+            (sum,a) =>
+                sum +
+                Number(a.balance),
+            0
+        );
+
+document
+    .getElementById(
+        "availableCashCard"
+    )
+    .innerText =
+    formatMKD(
+        availableCash
+    ) + " MKD";
+
+
+
+
+
+
+
+
+
+    
     const today = new Date();
 
-const firstDay =
-    getCurrentMonthStart();
-console.log(
-    "Dashboard firstDay:",
-    firstDay
-);
+    const firstDay =
+        getCurrentMonthStart();
+    console.log(
+        "Dashboard firstDay:",
+        firstDay
+    );
     // Load incomes
 
     const { data: incomes, error: incomeError } =
@@ -1482,17 +1523,18 @@ console.log(
         .innerHTML =
         formatMKD(spent) +
         " MKD";
+    
+    const rre =
+        await getRemainingRecurringExpenses();
 
     document
-        .getElementById("remainingCard")
-        .innerHTML =
-        formatMKD(remaining) +
-        " MKD";
-
-    document
-        .getElementById("transactionCard")
-        .innerHTML =
-        expenses.length;
+        .getElementById(
+            "rreCard"
+        )
+        .innerText =
+        formatMKD(rre)
+        + " MKD";
+        
 }
 
 async function loadIncomeSources() {
@@ -1823,6 +1865,80 @@ const firstDay =
         .getElementById("incomeBreakdown")
         .innerHTML = html;
 }
+
+async function getRemainingRecurringExpenses() {
+
+    const { data } =
+        await supabaseClient
+            .from("recurring_expenses")
+            .select("*")
+            .eq("active", true);
+
+    const currentMonth =
+        new Date().getMonth() + 1;
+
+    const firstDay =
+        getCurrentMonthStart();
+
+    const { data: paidTransactions } =
+        await supabaseClient
+            .from("transactions")
+            .select(`
+                amount,
+                note
+            `)
+            .gte(
+                "transaction_date",
+                firstDay
+            );
+
+    let planned = 0;
+    let paid = 0;
+
+    data.forEach(r => {
+
+        if(r.seasonal){
+
+            const active =
+
+                r.start_month <= r.end_month
+
+                ? (
+                    currentMonth >= r.start_month &&
+                    currentMonth <= r.end_month
+                )
+
+                : (
+                    currentMonth >= r.start_month ||
+                    currentMonth <= r.end_month
+                );
+
+            if(!active)
+                return;
+        }
+
+        planned +=
+            Number(r.amount);
+
+        const paidTransaction =
+            paidTransactions.find(t =>
+                (t.note || "")
+                ===
+                `Recurring: ${r.name}`
+            );
+
+        if(paidTransaction){
+
+            paid +=
+                Number(
+                    paidTransaction.amount
+                );
+        }
+    });
+
+    return planned - paid;
+}
+
 
 async function loadWeeklyGroceries() {
 
