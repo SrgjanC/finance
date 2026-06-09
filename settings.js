@@ -151,21 +151,29 @@ async function loadCredits() {
     }
 
     let html = `
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-            </tr>
-    `;
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Original</th>
+            <th>Balance</th>
+            <th>Monthly</th>
+            <th>Interest</th>
+            <th>End Date</th>
+        </tr>
+`;
 
     data.forEach(r => {
 
         html += `
-            <tr>
-                <td>${r.id}</td>
-                <td>${r.name}</td>
-            </tr>
-        `;
+    <tr>
+        <td>${r.name}</td>
+        <td>${r.original_amount}</td>
+        <td>${r.current_balance}</td>
+        <td>${r.monthly_payment}</td>
+        <td>${r.interest_rate}%</td>
+        <td>${r.end_date}</td>
+    </tr>
+`;
     });
 
     html += "</table>";
@@ -218,7 +226,7 @@ async function loadIncomeTypes() {
     const { data, error } =
         await supabaseClient
             .from("income_subcategories")
-            .select("*")
+            .select(`*, income_sources(name)`)
             .order("id");
 
     if(error){
@@ -229,18 +237,22 @@ async function loadIncomeTypes() {
     let html = `
         <table>
             <tr>
-                <th>ID</th>
-                <th>Name</th>
-            </tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Source</th>
+</tr>
     `;
 
     data.forEach(r => {
 
         html += `
             <tr>
-                <td>${r.id}</td>
-                <td>${r.name}</td>
-            </tr>
+    <td>${r.id}</td>
+    <td>${r.name}</td>
+    <td>
+        ${r.income_sources?.name || ""}
+    </td>
+</tr>
         `;
     });
 
@@ -301,10 +313,7 @@ async function loadRecurringExpenses() {
     const { data, error } =
         await supabaseClient
             .from("recurring_expenses")
-            .select(`
-                *,
-                accounts(name)
-            `)
+            .select(`*`)
             .order("sort_order");
 
     if(error){
@@ -327,7 +336,7 @@ async function loadRecurringExpenses() {
 
         html += `
             <tr>
-                <td>${r.name}</td>
+                <td>${r.account_id}</td>
                 <td>${r.amount}</td>
                 <td>${r.due_day}</td>
                 <td>${r.accounts?.name || ""}</td>
