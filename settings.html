@@ -25,13 +25,32 @@
     <h2>Subcategories</h2>
     <div id="subcategoriesList"></div>
 </div>
-    </div>
-    <div class="dashboard-grid">
-<div class="dashboard-card">
-    <h2>Accounts</h2>
-    <div id="accountsList"></div>
 </div>
+<div class="dashboard-grid">
+<div class="dashboard-card-v2">
 
+    <h2
+        class="settings-header"
+        onclick="
+            toggleCard(
+                'accountsContent',
+                this
+            )
+        ">
+
+        ▶ Accounts
+
+    </h2>
+
+    <div
+        id="accountsContent"
+        class="settings-content">
+
+        <div id="accountsList"></div>
+
+    </div>
+
+</div>
 <div class="dashboard-card">
     <h2>Credits</h2>
     <div id="creditsList"></div>
