@@ -1643,7 +1643,8 @@ async function loadIncomeHistory() {
             .select(`
                 *,
                 income_sources(name),
-                income_subcategories(name)
+                income_subcategories(name),
+                accounts(name)
             `)
             .order("income_date", {
                 ascending: false
@@ -1668,6 +1669,7 @@ async function loadIncomeHistory() {
             <td>${i.income_subcategories?.name || ""}</td>
             <td>${Number(i.amount).toFixed(0)} MKD</td>
             <td>${i.note || ""}</td>
+            <td>${i.accounts?.name || ""}</td>
             <td>
                 <button onclick="deleteIncome(${i.id})">
                     Delete
