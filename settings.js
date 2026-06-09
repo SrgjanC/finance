@@ -370,3 +370,11 @@ const accountName =
         "recurringExpensesList"
     ).innerHTML = html;
 }
+function toggleCard(id) {
+
+    document
+        .getElementById(id)
+        .classList
+        .toggle("open");
+
+}
