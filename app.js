@@ -2332,11 +2332,112 @@ async function loadTransferHistory() {
             <td>${t.to_account?.name}</td>
             <td>${formatMKD(t.amount)} MKD</td>
             <td>${t.note || ""}</td>
+            <td>
+    <button
+        onclick="deleteTransfer(${t.id})">
+        Delete
+    </button>
+</td>
         </tr>
         `;
     });
 }
+async function deleteTransfer(id) {
 
+    if(
+        !confirm(
+            "Delete this transfer?"
+        )
+    )
+        return;
+
+    const { data: transfer, error }
+        = await supabaseClient
+            .from("account_transfers")
+            .select("*")
+            .eq("id", id)
+            .single();
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    const amount =
+        Number(transfer.amount);
+
+    // restore source account
+
+    const { data: fromAccount }
+        = await supabaseClient
+            .from("accounts")
+            .select("balance")
+            .eq(
+                "id",
+                transfer.from_account_id
+            )
+            .single();
+
+    await supabaseClient
+        .from("accounts")
+        .update({
+
+            balance:
+                Number(
+                    fromAccount.balance
+                )
+                + amount
+
+        })
+        .eq(
+            "id",
+            transfer.from_account_id
+        );
+
+    // remove from destination account
+
+    const { data: toAccount }
+        = await supabaseClient
+            .from("accounts")
+            .select("balance")
+            .eq(
+                "id",
+                transfer.to_account_id
+            )
+            .single();
+
+    await supabaseClient
+        .from("accounts")
+        .update({
+
+            balance:
+                Number(
+                    toAccount.balance
+                )
+                - amount
+
+        })
+        .eq(
+            "id",
+            transfer.to_account_id
+        );
+
+    // delete transfer record
+
+    await supabaseClient
+        .from("account_transfers")
+        .delete()
+        .eq("id", id);
+
+    loadAccounts();
+    loadTransfers();
+    loadNetWorth();
+    loadSavingsGoals();
+
+    alert(
+        "Transfer deleted"
+    );
+}
 
 
 loadIncomeSources();
