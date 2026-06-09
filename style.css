@@ -232,3 +232,32 @@ button {
     padding: 6px 12px;
     cursor: pointer;
 }
+.dashboard-card-v2 {
+
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+}
+
+.settings-header {
+
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+
+}
+
+.settings-content {
+
+    display: none;
+    margin-top: 15px;
+
+}
+
+.settings-content.open {
+
+    display: block;
+
+}
