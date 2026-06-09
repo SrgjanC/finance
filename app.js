@@ -1508,9 +1508,11 @@ document
     expenses.forEach(e => {
         spent += Number(e.amount);
     });
+    
+    const rre =
+        await getRemainingRecurringExpenses();
 
-    const remaining =
-        income - spent;
+    
 
     document
         .getElementById("incomeCard")
@@ -1523,9 +1525,6 @@ document
         .innerHTML =
         formatMKD(spent) +
         " MKD";
-    
-    const rre =
-        await getRemainingRecurringExpenses();
 
     document
         .getElementById(
