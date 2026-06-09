@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Finance Tracker - Settings</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="nav-bar">
+    <a href="index.html">Dashboard</a>
+    <a href="settings.html">Settings</a>
+</div>
+
+<h1>Settings</h1>
+
+<select
+    id="settingsType"
+    onchange="loadSettingsData()">
+
+    <option value="categories">
+        Categories
+    </option>
+
+    <option value="subcategories">
+        Subcategories
+    </option>
+
+    <option value="accounts">
+        Accounts
+    </option>
+
+    <option value="income_sources">
+        Income Sources
+    </option>
+
+    <option value="income_subcategories">
+        Income Types
+    </option>
+
+</select>
+
+<hr>
+
+<div id="settingsTable"></div>
+
+<hr>
+
+<h3>Add New</h3>
+
+<input
+    type="text"
+    id="newName"
+    placeholder="Name">
+
+<button onclick="addSetting()">
+    Add
+</button>
+
+<script src="supabase.js"></script>
+<script src="settings.js"></script>
+
+</body>
+</html>
