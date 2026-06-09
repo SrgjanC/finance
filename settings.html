@@ -15,72 +15,187 @@
 </div>
 
 <h1>Settings</h1>
+
 <div class="dashboard-grid">
-<div class="dashboard-card">
-    <h2>Categories</h2>
-    <div id="categoriesList"></div>
-</div>
 
-<div class="dashboard-card">
-    <h2>Subcategories</h2>
-    <div id="subcategoriesList"></div>
-</div>
-</div>
-<div class="dashboard-grid">
-<div class="dashboard-card-v2">
+    <!-- Categories -->
 
-    <h2
-        class="settings-header"
-        onclick="
-            toggleCard(
-                'accountsContent',
-                this
-            )
-        ">
+    <div class="dashboard-card-v2">
 
-        ▶ Accounts
+        <h2
+            class="settings-header"
+            onclick="toggleCard('categoriesContent', this)">
 
-    </h2>
+            ▶ Categories
 
-    <div
-        id="accountsContent"
-        class="settings-content">
+        </h2>
 
-        <div id="accountsList"></div>
+        <div
+            id="categoriesContent"
+            class="settings-content">
+
+            <div id="categoriesList"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Subcategories -->
+
+    <div class="dashboard-card-v2">
+
+        <h2
+            class="settings-header"
+            onclick="toggleCard('subcategoriesContent', this)">
+
+            ▶ Subcategories
+
+        </h2>
+
+        <div
+            id="subcategoriesContent"
+            class="settings-content">
+
+            <div id="subcategoriesList"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Accounts -->
+
+    <div class="dashboard-card-v2">
+
+        <h2
+            class="settings-header"
+            onclick="toggleCard('accountsContent', this)">
+
+            ▶ Accounts
+
+        </h2>
+
+        <div
+            id="accountsContent"
+            class="settings-content">
+
+            <div id="accountsList"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Credits -->
+
+    <div class="dashboard-card-v2">
+
+        <h2
+            class="settings-header"
+            onclick="toggleCard('creditsContent', this)">
+
+            ▶ Credits
+
+        </h2>
+
+        <div
+            id="creditsContent"
+            class="settings-content">
+
+            <div id="creditsList"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Income Sources -->
+
+    <div class="dashboard-card-v2">
+
+        <h2
+            class="settings-header"
+            onclick="toggleCard('incomeSourcesContent', this)">
+
+            ▶ Income Sources
+
+        </h2>
+
+        <div
+            id="incomeSourcesContent"
+            class="settings-content">
+
+            <div id="incomeSourcesList"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Income Types -->
+
+    <div class="dashboard-card-v2">
+
+        <h2
+            class="settings-header"
+            onclick="toggleCard('incomeTypesContent', this)">
+
+            ▶ Income Types
+
+        </h2>
+
+        <div
+            id="incomeTypesContent"
+            class="settings-content">
+
+            <div id="incomeTypesList"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Savings Goals -->
+
+    <div class="dashboard-card-v2">
+
+        <h2
+            class="settings-header"
+            onclick="toggleCard('savingsGoalsContent', this)">
+
+            ▶ Savings Goals
+
+        </h2>
+
+        <div
+            id="savingsGoalsContent"
+            class="settings-content">
+
+            <div id="savingsGoalsList"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Recurring Expenses -->
+
+    <div class="dashboard-card-v2">
+
+        <h2
+            class="settings-header"
+            onclick="toggleCard('recurringExpensesContent', this)">
+
+            ▶ Recurring Expenses
+
+        </h2>
+
+        <div
+            id="recurringExpensesContent"
+            class="settings-content">
+
+            <div id="recurringExpensesList"></div>
+
+        </div>
 
     </div>
 
 </div>
-<div class="dashboard-card">
-    <h2>Credits</h2>
-    <div id="creditsList"></div>
-</div>
-        </div>
-    <div class="dashboard-grid">
 
-<div class="dashboard-card">
-    <h2>Income Sources</h2>
-    <div id="incomeSourcesList"></div>
-</div>
-    
-<div class="dashboard-card">
-    <h2>Income Types</h2>
-   <div id="incomeTypesList"></div>
-</div>
-        </div>
-    <div class="dashboard-grid">
-
-    <div class="dashboard-card">
-    <h2>Savings Goals</h2>
-   <div id="savingsGoalsList"></div>
-</div>
-    
-    <div class="dashboard-card">
-    <h2>Recurring Expenses</h2>
-    <div id="recurringExpensesList"></div>
-</div>
-
-   </div> 
 <script src="supabase.js"></script>
 <script src="settings.js"></script>
 
