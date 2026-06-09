@@ -320,6 +320,10 @@ async function loadRecurringExpenses() {
         console.error(error);
         return;
     }
+    const { data: accounts } =
+    await supabaseClient
+        .from("accounts")
+        .select("id,name");
 
     let html = `
         <table>
@@ -333,13 +337,16 @@ async function loadRecurringExpenses() {
     `;
 
     data.forEach(r => {
-
+const accountName =
+    accounts.find(
+        a => a.id === r.account_id
+    )?.name || "";
         html += `
             <tr>
-                <td>${r.accounts?.name || ""}</td>
+                <td>${r.name || ""}</td>
                 <td>${r.amount}</td>
                 <td>${r.due_day}</td>
-                <td>${r.accounts?.name || ""}</td>
+                <td>${accountName}</td>
                 <td>${r.category || ""}</td>
             </tr>
         `;
