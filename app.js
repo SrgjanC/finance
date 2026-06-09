@@ -2409,19 +2409,24 @@ async function deleteTransfer(id) {
 
     // delete transfer record
 
+const { error: deleteError } =
     await supabaseClient
         .from("account_transfers")
         .delete()
         .eq("id", id);
 
+console.log(
+    "Delete Error:",
+    deleteError
+);
+
     loadAccounts();
     loadNetWorth();
     loadSavingsGoals();
-    loadTransferHistory()
+    
+    await loadTransferHistory()
 
-    alert(
-        "Transfer deleted"
-    );
+    
 }
 
 
