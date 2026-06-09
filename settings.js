@@ -45,7 +45,11 @@ async function loadCategories() {
     `;
 
     data.forEach(r => {
-
+setCardCount(
+    "categoriesContent",
+    "Categories",
+    data.length
+);
         html += `
             <tr>
                 <td>${r.id}</td>
@@ -88,7 +92,11 @@ async function loadSubcategories() {
     `;
 
     data.forEach(r => {
-
+setCardCount(
+    "subcategoriesContent",
+    "Subcategories",
+    data.length
+);
         html += `
             <tr>
                 <td>${r.id}</td>
@@ -130,7 +138,11 @@ async function loadAccounts() {
     `;
 
     data.forEach(r => {
-
+setCardCount(
+    "accountsContent",
+    "Accounts",
+    data.length
+);
         html += `
             <tr>
                 <td>${r.id}</td>
@@ -175,7 +187,11 @@ async function loadCredits() {
 `;
 
     data.forEach(r => {
-
+setCardCount(
+    "creditsContent",
+    "Credits",
+    data.length
+);
         html += `
     <tr>
         <td>${r.name}</td>
@@ -217,7 +233,11 @@ async function loadIncomeSources() {
     `;
 
     data.forEach(r => {
-
+setCardCount(
+    "incomeSourcesContent",
+    "Income Sources",
+    data.length
+);
         html += `
             <tr>
                 <td>${r.id}</td>
@@ -256,7 +276,11 @@ async function loadIncomeTypes() {
     `;
 
     data.forEach(r => {
-
+setCardCount(
+    "incomeTypesContent",
+    "Income Types",
+    data.length
+);
         html += `
             <tr>
     <td>${r.id}</td>
@@ -302,7 +326,11 @@ async function loadSavingsGoals() {
     `;
 
     data.forEach(r => {
-
+setCardCount(
+    "savingsGoalsContent",
+    "Savings Goals",
+    data.length
+);
         html += `
             <tr>
                 <td>${r.id}</td>
@@ -349,6 +377,12 @@ async function loadRecurringExpenses() {
     `;
 
     data.forEach(r => {
+setCardCount(
+    "recurringExpensesContent",
+    "Recurring Expenses",
+    data.length
+);
+        
 const accountName =
     accounts.find(
         a => a.id === r.account_id
@@ -376,15 +410,73 @@ function toggleCard(id, header) {
         .querySelectorAll(
             ".settings-content"
         )
-        .forEach(c => {
+        .forEach(content => {
 
-            if(c.id !== id)
-                c.classList.remove("open");
+            if(content.id !== id){
+
+                content.classList.remove("open");
+
+            }
+
+        });
+
+    document
+        .querySelectorAll(
+            ".settings-header"
+        )
+        .forEach(h => {
+
+            if(h !== header){
+
+                h.innerHTML =
+                    h.innerHTML.replace(
+                        "▼",
+                        "▶"
+                    );
+
+            }
 
         });
 
     const content =
         document.getElementById(id);
 
+    const isOpen =
+        content.classList.contains("open");
+
     content.classList.toggle("open");
+
+    if(!isOpen){
+
+        header.innerHTML =
+            header.innerHTML.replace(
+                "▶",
+                "▼"
+            );
+
+    } else {
+
+        header.innerHTML =
+            header.innerHTML.replace(
+                "▼",
+                "▶"
+            );
+    }
+}
+function setCardCount(
+    contentId,
+    title,
+    count
+){
+
+    const header =
+        document.querySelector(
+            `[onclick*="${contentId}"]`
+        );
+
+    if(!header)
+        return;
+
+    header.innerHTML =
+        `▶ ${title} (${count})`;
 }
