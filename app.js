@@ -2415,7 +2415,6 @@ async function deleteTransfer(id) {
         .eq("id", id);
 
     loadAccounts();
-    loadTransfers();
     loadNetWorth();
     loadSavingsGoals();
     loadTransferHistory()
