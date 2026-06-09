@@ -370,11 +370,21 @@ const accountName =
         "recurringExpensesList"
     ).innerHTML = html;
 }
-function toggleCard(id) {
+function toggleCard(id, header) {
 
     document
-        .getElementById(id)
-        .classList
-        .toggle("open");
+        .querySelectorAll(
+            ".settings-content"
+        )
+        .forEach(c => {
 
+            if(c.id !== id)
+                c.classList.remove("open");
+
+        });
+
+    const content =
+        document.getElementById(id);
+
+    content.classList.toggle("open");
 }
