@@ -1,38 +1,21 @@
-async function loadSettingsData() {
+window.onload = function () {
 
-const table =
-    document.getElementById(
-        "settingsType"
-    ).value;
+    loadCategories();
+    loadSubcategories();
+    loadAccounts();
+    loadCredits();
+    loadIncomeSources();
+    loadIncomeTypes();
+    loadSavingsGoals();
+    loadRecurringExpenses();
 
-switch(table){
+};
 
-    case "subcategories":
-        loadSubcategories();
-        break;
+async function loadCategories() {
 
-    case "accounts":
-        loadAccountsSettings();
-        break;
-
-    case "credits":
-        loadCreditsSettings();
-        break;
-
-    case "savings_goals":
-        loadSavingsGoalsSettings();
-        break;
-
-    case "recurring_expenses":
-        loadRecurringExpensesSettings();
-        break;
-
-    default:
-        loadGenericTable();
-}
     const { data, error } =
         await supabaseClient
-            .from(table)
+            .from("categories")
             .select("*")
             .order("id");
 
@@ -46,7 +29,6 @@ switch(table){
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Action</th>
             </tr>
     `;
 
@@ -55,94 +37,19 @@ switch(table){
         html += `
             <tr>
                 <td>${r.id}</td>
-                <td>
-    <input
-        type="text"
-        id="name${r.id}"
-        value="${r.name}">
-</td>
-
-<td>
-    <button
-        onclick="saveSetting(${r.id})">
-        Save
-    </button>
-</td>
+                <td>${r.name}</td>
             </tr>
         `;
     });
 
     html += "</table>";
 
-    document
-        .getElementById(
-            "settingsTable"
-        )
-        .innerHTML = html;
-}
-
-async function saveSetting(id){
-
-    const table =
-        document.getElementById(
-            "settingsType"
-        ).value;
-
-    const name =
-        document.getElementById(
-            `name${id}`
-        ).value;
-
-    const { error } =
-        await supabaseClient
-            .from(table)
-            .update({
-                name: name
-            })
-            .eq("id", id);
-
-    if(error){
-        console.error(error);
-        return;
-    }
-
-    loadSettingsData();
-}
-async function addSetting(){
-
-    const table =
-        document.getElementById(
-            "settingsType"
-        ).value;
-
-    const name =
-        document.getElementById(
-            "newName"
-        ).value;
-
-    if(!name)
-        return;
-
-    const { error } =
-        await supabaseClient
-            .from(table)
-            .insert({
-                name: name
-            });
-
-    if(error){
-        console.error(error);
-        return;
-    }
-
     document.getElementById(
-        "newName"
-    ).value = "";
-
-    loadSettingsData();
+        "categoriesList"
+    ).innerHTML = html;
 }
 
-async function loadSubcategories(){
+async function loadSubcategories() {
 
     const { data, error } =
         await supabaseClient
@@ -159,114 +66,279 @@ async function loadSubcategories(){
         return;
     }
 
-    const { data: categories } =
-        await supabaseClient
-            .from("categories")
-            .select("*")
-            .order("name");
-
     let html = `
         <table>
             <tr>
                 <th>ID</th>
                 <th>Name</th>
                 <th>Category</th>
-                <th>Action</th>
             </tr>
     `;
 
-    data.forEach(s => {
+    data.forEach(r => {
 
         html += `
             <tr>
-
-                <td>${s.id}</td>
-
-                <td>
-                    <input
-                        id="subName${s.id}"
-                        value="${s.name}">
-                </td>
-
-                <td>
-
-                    <select
-                        id="subCategory${s.id}">
-
-                        ${
-                            categories
-                            .map(c => `
-                                <option
-                                    value="${c.id}"
-                                    ${
-                                        c.id === s.category_id
-                                        ? "selected"
-                                        : ""
-                                    }>
-                                    ${c.name}
-                                </option>
-                            `)
-                            .join("")
-                        }
-
-                    </select>
-
-                </td>
-
-                <td>
-
-                    <button
-                        onclick="
-                            saveSubcategory(
-                                ${s.id}
-                            )
-                        ">
-                        Save
-                    </button>
-
-                </td>
-
+                <td>${r.id}</td>
+                <td>${r.name}</td>
+                <td>${r.categories?.name || ""}</td>
             </tr>
         `;
     });
 
     html += "</table>";
 
-    document
-        .getElementById(
-            "settingsTable"
-        )
-        .innerHTML = html;
-}
-async function saveSubcategory(id){
-
-    const name =
-        document.getElementById(
-            `subName${id}`
-        ).value;
-
-    const categoryId =
-        Number(
-            document.getElementById(
-                `subCategory${id}`
-            ).value
-        );
-
-    await supabaseClient
-        .from("subcategories")
-        .update({
-
-            name: name,
-
-            category_id:
-                categoryId
-
-        })
-        .eq("id", id);
-
-    loadSubcategories();
+    document.getElementById(
+        "subcategoriesList"
+    ).innerHTML = html;
 }
 
+async function loadAccounts() {
 
+    const { data, error } =
+        await supabaseClient
+            .from("accounts")
+            .select("*")
+            .order("id");
 
-loadSettingsData();
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Balance</th>
+                <th>Type</th>
+                <th>Purpose</th>
+            </tr>
+    `;
+
+    data.forEach(r => {
+
+        html += `
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.name}</td>
+                <td>${Number(r.balance).toFixed(2)}</td>
+                <td>${r.account_type || ""}</td>
+                <td>${r.purpose || ""}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById(
+        "accountsList"
+    ).innerHTML = html;
+}
+
+async function loadCredits() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("credits")
+            .select("*")
+            .order("id");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+    `;
+
+    data.forEach(r => {
+
+        html += `
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.name}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById(
+        "creditsList"
+    ).innerHTML = html;
+}
+
+async function loadIncomeSources() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("income_sources")
+            .select("*")
+            .order("id");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+    `;
+
+    data.forEach(r => {
+
+        html += `
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.name}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById(
+        "incomeSourcesList"
+    ).innerHTML = html;
+}
+
+async function loadIncomeTypes() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("income_subcategories")
+            .select("*")
+            .order("id");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+            </tr>
+    `;
+
+    data.forEach(r => {
+
+        html += `
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.name}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById(
+        "incomeTypesList"
+    ).innerHTML = html;
+}
+
+async function loadSavingsGoals() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("savings_goals")
+            .select(`
+                *,
+                accounts(name)
+            `)
+            .order("id");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Target</th>
+                <th>Account</th>
+            </tr>
+    `;
+
+    data.forEach(r => {
+
+        html += `
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.name}</td>
+                <td>${r.target_amount}</td>
+                <td>${r.accounts?.name || ""}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById(
+        "savingsGoalsList"
+    ).innerHTML = html;
+}
+
+async function loadRecurringExpenses() {
+
+    const { data, error } =
+        await supabaseClient
+            .from("recurring_expenses")
+            .select(`
+                *,
+                accounts(name)
+            `)
+            .order("sort_order");
+
+    if(error){
+        console.error(error);
+        return;
+    }
+
+    let html = `
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Amount</th>
+                <th>Due</th>
+                <th>Account</th>
+                <th>Category</th>
+            </tr>
+    `;
+
+    data.forEach(r => {
+
+        html += `
+            <tr>
+                <td>${r.name}</td>
+                <td>${r.amount}</td>
+                <td>${r.due_day}</td>
+                <td>${r.accounts?.name || ""}</td>
+                <td>${r.category || ""}</td>
+            </tr>
+        `;
+    });
+
+    html += "</table>";
+
+    document.getElementById(
+        "recurringExpensesList"
+    ).innerHTML = html;
+}
