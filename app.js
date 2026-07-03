@@ -126,10 +126,11 @@ function getSelectedMonthStart() {
     return `${selectedDate.getFullYear()}-${
         String(
             selectedDate.getMonth() + 1
-        ).padStart(2,"0")
-    }-01";
+        ).padStart(2, "0")
+    }-01`;
 
 }
+
 
 function getSelectedMonthEnd() {
 
