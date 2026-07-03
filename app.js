@@ -2639,7 +2639,7 @@ console.log(
 
     
 }
-
+updateMonthLabel();
 
 loadIncomeSources();
 loadCategories();
