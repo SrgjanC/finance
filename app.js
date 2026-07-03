@@ -70,6 +70,14 @@ document
     "change",
     loadSubcategories
 );
+
+
+
+
+
+
+
+
 function getCurrentMonthStart() {
 
     const today =
@@ -155,6 +163,26 @@ function getSelectedMonthName(){
 
 }
 
+function updateMonthLabel(){
+
+    document
+        .getElementById(
+            "selectedMonthLabel"
+        )
+        .innerHTML =
+        getSelectedMonthName();
+
+}
+
+function changeMonth(offset){
+
+    selectedDate.setMonth(
+        selectedDate.getMonth() + offset
+    );
+
+    updateMonthLabel();
+
+}
 
 async function loadExpenseAccounts() {
 
@@ -1352,18 +1380,36 @@ const firstDay =
 
 async function loadExpenses() {
 
-    const { data, error } =
-        await supabaseClient
-            .from("transactions")
-            .select(`
-                *,
-                categories(name),
-                subcategories(name),
-                accounts(name)
-            `)
-            .order("transaction_date", {
-                ascending: false
-            });
+    const firstDay =
+    getSelectedMonthStart();
+
+const lastDay =
+    getSelectedMonthEnd();
+
+    
+const { data, error } =
+    await supabaseClient
+        .from("transactions")
+        .select(`
+            *,
+            categories(name),
+            subcategories(name),
+            accounts(name)
+        )
+        .gte(
+            "transaction_date",
+            firstDay
+        )
+        .lte(
+            "transaction_date",
+            lastDay
+        )
+        .order(
+            "transaction_date",
+            {
+                ascending:false
+            }
+        );
 
     if (error) {
         console.error(error);
@@ -2616,7 +2662,7 @@ loadAdditionalIncome();
 loadTransferAccounts();
 loadTransferHistory();
 
-
+updateMonthLabel();
 
 
 document
