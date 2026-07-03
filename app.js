@@ -153,6 +153,7 @@ function changeMonth(offset) {
 
     loadExpenses();
     loadIncomeHistory();
+    
 
 }
 
