@@ -1368,18 +1368,37 @@ const firstDay =
 
 async function loadExpenses() {
 
+const firstDay =
+    getSelectedMonthStart();
+
+const lastDay =
+    getSelectedMonthEnd();
+
+    console.log(    "Expenses:",    firstDay,    "->",    lastDay );
+    
     const { data, error } =
-        await supabaseClient
-            .from("transactions")
-            .select(`
-                *,
-                categories(name),
-                subcategories(name),
-                accounts(name)
-            `)
-            .order("transaction_date", {
+    await supabaseClient
+        .from("transactions")
+        .select(`
+            *,
+            categories(name),
+            subcategories(name),
+            accounts(name)
+        `)
+        .gte(
+            "transaction_date",
+            firstDay
+        )
+        .lte(
+            "transaction_date",
+            lastDay
+        )
+        .order(
+            "transaction_date",
+            {
                 ascending: false
-            });
+            }
+        );
 
     if (error) {
         console.error(error);
