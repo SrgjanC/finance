@@ -10,7 +10,7 @@ const BONUS_SPLIT = {
 };
 
 let additionalIncomeThisMonth = 0;
-let selectedDate =    new Date();
+
 
 async function loadCategories() {
 
@@ -70,14 +70,6 @@ document
     "change",
     loadSubcategories
 );
-
-
-
-
-
-
-
-
 function getCurrentMonthStart() {
 
     const today =
@@ -119,72 +111,6 @@ function formatMKD(value) {
         });
 
 }
-
-
-function getSelectedMonthStart() {
-
-    return `${selectedDate.getFullYear()}-${
-        String(
-            selectedDate.getMonth() + 1
-        ).padStart(2, "0")
-    }-01`;
-
-}
-
-
-function getSelectedMonthEnd() {
-
-    const lastDay =
-        new Date(
-            selectedDate.getFullYear(),
-            selectedDate.getMonth()+1,
-            0
-        ).getDate();
-
-    return `${selectedDate.getFullYear()}-${
-        String(
-            selectedDate.getMonth()+1
-        ).padStart(2,"0")
-    }-${
-        String(lastDay)
-        .padStart(2,"0")
-    }`;
-
-}
-
-function getSelectedMonthName(){
-
-    return selectedDate.toLocaleDateString(
-        "en-US",
-        {
-            month:"long",
-            year:"numeric"
-        }
-    );
-
-}
-
-function updateMonthLabel(){
-
-    document
-        .getElementById(
-            "selectedMonthLabel"
-        )
-        .innerHTML =
-        getSelectedMonthName();
-
-}
-
-function changeMonth(offset){
-
-    selectedDate.setMonth(
-        selectedDate.getMonth() + offset
-    );
-
-    updateMonthLabel();
-
-}
-
 async function loadExpenseAccounts() {
 
     const { data } =
@@ -1381,36 +1307,18 @@ const firstDay =
 
 async function loadExpenses() {
 
-    const firstDay =
-    getSelectedMonthStart();
-
-const lastDay =
-    getSelectedMonthEnd();
-
-    
-const { data, error } =
-    await supabaseClient
-        .from("transactions")
-        .select(`
-            *,
-            categories(name),
-            subcategories(name),
-            accounts(name)
-        ')
-        .gte(
-            "transaction_date",
-            firstDay
-        )
-        .lte(
-            "transaction_date",
-            lastDay
-        )
-        .order(
-            "transaction_date",
-            {
-                ascending:false
-            }
-        );
+    const { data, error } =
+        await supabaseClient
+            .from("transactions")
+            .select(`
+                *,
+                categories(name),
+                subcategories(name),
+                accounts(name)
+            `)
+            .order("transaction_date", {
+                ascending: false
+            });
 
     if (error) {
         console.error(error);
@@ -2663,7 +2571,7 @@ loadAdditionalIncome();
 loadTransferAccounts();
 loadTransferHistory();
 
-updateMonthLabel();
+
 
 
 document
