@@ -153,6 +153,7 @@ function changeMonth(offset) {
 
     loadExpenses();
     loadIncomeHistory();
+    loadTransferHistory();
     
 
 }
@@ -2509,6 +2510,14 @@ async function saveTransfer() {
 }
 async function loadTransferHistory() {
 
+const firstDay =
+    getSelectedMonthStart();
+
+const lastDay =
+    getSelectedMonthEnd();
+    
+
+    
     const { data, error } =
         await supabaseClient
             .from("account_transfers")
@@ -2517,7 +2526,14 @@ async function loadTransferHistory() {
                 from_account:from_account_id(name),
                 to_account:to_account_id(name)
             `)
-            .order(
+            .gte(
+            "transfer_date",
+            firstDay
+        )
+        .lte(
+            "transfer_date",
+            lastDay
+        ).order(
                 "transfer_date",
                 {
                     ascending:false
