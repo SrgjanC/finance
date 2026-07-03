@@ -155,7 +155,7 @@ function changeMonth(offset) {
     loadIncomeHistory();
     loadTransferHistory();
     loadTopCategories();
-    
+    loadIncomeBreakdown();
 
 }
 
@@ -1903,10 +1903,11 @@ async function deleteIncome(id) {
 
 async function loadIncomeBreakdown() {
 
-    const today = new Date();
+    const firstDay =
+    getSelectedMonthStart();
 
-const firstDay =
-    getCurrentMonthStart();
+const lastDay =
+    getSelectedMonthEnd();
 
     const { data, error } =
         await supabaseClient
@@ -1915,7 +1916,14 @@ const firstDay =
                 amount,
                 income_subcategories(name)
             `)
-            .gte("income_date", firstDay);
+            .gte(
+            "income_date",
+            firstDay
+        )
+        .lte(
+            "income_date",
+            lastDay
+        );
 
     if(error){
         console.error(error);
