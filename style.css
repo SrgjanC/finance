@@ -298,3 +298,27 @@ button {
     text-align:center;
 
 }
+
+.month-today-btn{
+
+    margin-left:15px;
+
+    padding:8px 16px;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-weight:bold;
+
+}
+
+.month-today-btn:disabled{
+
+    opacity:.5;
+
+    cursor:default;
+
+}
