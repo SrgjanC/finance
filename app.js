@@ -157,7 +157,8 @@ function changeMonth(offset) {
     loadTopCategories();
     loadIncomeBreakdown();
     loadSummary();
-    
+    loadBudgetProgress();
+    loadWeeklyGroceries();
 
 }
 
@@ -1275,22 +1276,37 @@ const lastDay =
 
 async function loadBudgetProgress() {
 
-    const today = new Date();
+    const firstDay =
+    getSelectedMonthStart();
 
-const firstDay =
-    getCurrentMonthStart();
+const lastDay =
+    getSelectedMonthEnd();
 
     const { data: incomes } =
         await supabaseClient
             .from("incomes")
             .select("amount")
-            .gte("income_date", firstDay);
+            .gte(
+            "income_date",
+            firstDay
+        )
+        .lte(
+            "income_date",
+            lastDay
+        );
 
     const { data: expenses } =
         await supabaseClient
             .from("transactions")
             .select("amount")
-            .gte("transaction_date", firstDay);
+            .gte(
+            "transaction_date",
+            firstDay
+        )
+        .lte(
+            "transaction_date",
+            lastDay
+        );
 
     let income = 0;
     let spent = 0;
@@ -2076,13 +2092,11 @@ async function getRemainingRecurringExpenses() {
 
 async function loadWeeklyGroceries() {
 
-    const today = new Date();
-
 const firstDay =
-    getCurrentMonthStart();
+    getSelectedMonthStart();
 
 const lastDay =
-        getCurrentMonthEnd();
+    getSelectedMonthEnd();
 
     const { data, error } =
         await supabaseClient
