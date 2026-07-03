@@ -157,6 +157,7 @@ function changeMonth(offset) {
     loadTopCategories();
     loadIncomeBreakdown();
     loadSummary();
+    
 
 }
 
