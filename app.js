@@ -123,18 +123,46 @@ function getSelectedMonthEnd() {
 function updateMonthLabel() {
 
     const label =
-        document.getElementById("selectedMonthLabel");
+        document.getElementById(
+            "selectedMonthLabel"
+        );
 
-    if (!label) return;
+    if(!label)
+        return;
 
-    label.innerHTML =
+    label.textContent =
         selectedDate.toLocaleDateString(
             "en-US",
             {
-                month: "long",
-                year: "numeric"
+                month:"long",
+                year:"numeric"
             }
         );
+
+    const todayBtn =
+        document.getElementById(
+            "todayBtn"
+        );
+
+    if(todayBtn){
+
+        const today =
+            new Date();
+
+        const isCurrentMonth =
+
+            today.getFullYear() ===
+            selectedDate.getFullYear()
+
+            &&
+
+            today.getMonth() ===
+            selectedDate.getMonth();
+
+        todayBtn.disabled =
+            isCurrentMonth;
+
+    }
 
 }
 
@@ -163,7 +191,22 @@ function changeMonth(offset) {
 
 }
 
+function goToCurrentMonth(){
 
+    selectedDate = new Date();
+
+    updateMonthLabel();
+    loadDashboard();
+    loadExpenses();
+    loadIncomeHistory();
+    loadTransferHistory();
+    loadTopCategories();
+    loadIncomeBreakdown();
+    loadSummary();
+    loadBudgetProgress();
+    loadWeeklyGroceries();
+
+}
 
 
 function getCurrentMonthEnd() {
