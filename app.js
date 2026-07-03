@@ -140,6 +140,11 @@ function updateMonthLabel() {
 
 function changeMonth(offset) {
 
+    console.log(
+        "changeMonth called:",
+        offset
+    );
+    
     selectedDate.setMonth(
         selectedDate.getMonth() + offset
     );
