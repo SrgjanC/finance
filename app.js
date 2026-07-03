@@ -11,6 +11,15 @@ const BONUS_SPLIT = {
 
 let additionalIncomeThisMonth = 0;
 let selectedDate = new Date();
+console.log("selectedDate:", selectedDate);
+console.log("Month:", selectedDate.getMonth() + 1);
+console.log("Label:", selectedDate.toLocaleDateString(
+    "en-US",
+    {
+        month: "long",
+        year: "numeric"
+    }
+));
 
 async function loadCategories() {
 
