@@ -1396,7 +1396,7 @@ const { data, error } =
             categories(name),
             subcategories(name),
             accounts(name)
-        )
+        ')
         .gte(
             "transaction_date",
             firstDay
