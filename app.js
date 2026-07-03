@@ -156,6 +156,7 @@ function changeMonth(offset) {
     loadTransferHistory();
     loadTopCategories();
     loadIncomeBreakdown();
+    loadSummary();
 
 }
 
@@ -1180,10 +1181,11 @@ document.getElementById("note").value = "";
 
 async function loadSummary() {
 
-    const today = new Date();
-
 const firstDay =
-    getCurrentMonthStart();
+    getSelectedMonthStart();
+
+const lastDay =
+    getSelectedMonthEnd();
 
     const { data, error } =
         await supabaseClient
@@ -1194,9 +1196,13 @@ const firstDay =
                 categories(name)
             `)
             .gte(
-                "transaction_date",
-                firstDay
-            );
+            "transaction_date",
+            firstDay
+        )
+        .lte(
+            "transaction_date",
+            lastDay
+        );
 
     if (error) {
         console.error(error);
