@@ -155,6 +155,7 @@ function changeMonth(offset) {
     loadIncomeHistory();
     loadTransferHistory();
     loadTopCategories();
+    
 
 }
 
