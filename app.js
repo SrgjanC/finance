@@ -152,6 +152,7 @@ function changeMonth(offset) {
     updateMonthLabel();
 
     loadExpenses();
+    loadIncomeHistory();
 
 }
 
@@ -1766,6 +1767,13 @@ document.getElementById("incomeNote").value = "";
 
 async function loadIncomeHistory() {
 
+const firstDay =
+    getSelectedMonthStart();
+
+const lastDay =
+    getSelectedMonthEnd();
+    
+    
     const { data, error } =
         await supabaseClient
             .from("incomes")
@@ -1775,7 +1783,15 @@ async function loadIncomeHistory() {
                 income_subcategories(name),
                 accounts(name)
             `)
-            .order("income_date", {
+        .gte(
+    "income_date",
+    firstDay
+)
+.lte(
+    "income_date",
+    lastDay
+)    
+        .order("income_date", {
                 ascending: false
             });
 
