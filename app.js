@@ -10,7 +10,7 @@ const BONUS_SPLIT = {
 };
 
 let additionalIncomeThisMonth = 0;
-
+let selectedDate =    new Date();
 
 async function loadCategories() {
 
