@@ -137,6 +137,8 @@ function changeMonth(offset) {
 
     updateMonthLabel();
 
+    loadExpenses();
+
 }
 
 
