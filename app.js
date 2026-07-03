@@ -154,7 +154,7 @@ function changeMonth(offset) {
     loadExpenses();
     loadIncomeHistory();
     loadTransferHistory();
-    
+    loadTopCategories();
 
 }
 
@@ -1321,10 +1321,11 @@ else {
 
 async function loadTopCategories() {
 
-    const today = new Date();
+    const firstDay =
+    getSelectedMonthStart();
 
-const firstDay =
-    getCurrentMonthStart();
+const lastDay =
+    getSelectedMonthEnd();
 
     const { data, error } =
         await supabaseClient
@@ -1334,9 +1335,13 @@ const firstDay =
                 categories(name)
             `)
             .gte(
-                "transaction_date",
-                firstDay
-            );
+            "transaction_date",
+            firstDay
+        )
+        .lte(
+            "transaction_date",
+            lastDay
+        );
 
     if(error){
         console.error(error);
