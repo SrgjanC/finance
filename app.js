@@ -165,6 +165,17 @@ function updateMonthLabel() {
     }
 
 }
+function refreshSelectedMonth(){
+    loadDashboard();
+    loadExpenses();
+    loadIncomeHistory();
+    loadTransferHistory();
+    loadTopCategories();
+    loadIncomeBreakdown();
+    loadSummary();
+    loadBudgetProgress();
+    loadWeeklyGroceries();
+}
 
 function changeMonth(offset) {
 
@@ -178,16 +189,7 @@ function changeMonth(offset) {
     );
 
     updateMonthLabel();
-
-    loadDashboard();
-    loadExpenses();
-    loadIncomeHistory();
-    loadTransferHistory();
-    loadTopCategories();
-    loadIncomeBreakdown();
-    loadSummary();
-    loadBudgetProgress();
-    loadWeeklyGroceries();
+    refreshSelectedMonth();
 
 }
 
@@ -196,15 +198,7 @@ function goToCurrentMonth(){
     selectedDate = new Date();
 
     updateMonthLabel();
-    loadDashboard();
-    loadExpenses();
-    loadIncomeHistory();
-    loadTransferHistory();
-    loadTopCategories();
-    loadIncomeBreakdown();
-    loadSummary();
-    loadBudgetProgress();
-    loadWeeklyGroceries();
+    refreshSelectedMonth();
 
 }
 
