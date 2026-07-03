@@ -1394,7 +1394,8 @@ const lastDay =
             .from("transactions")
             .select(`
                 amount,
-                categories(name)
+                categories(name),
+    subcategories(name)
             `)
             .gte(
             "transaction_date",
@@ -1412,21 +1413,45 @@ const lastDay =
 
     const totals = {};
 
-    data.forEach(t => {
+data.forEach(t => {
 
-        const category =
-            t.categories?.name || "Other";
+    const category =
+        t.categories?.name || "Other";
 
-        totals[category] =
-            (totals[category] || 0)
-            + Number(t.amount);
+    const subcategory =
+        t.subcategories?.name || "Other";
 
-    });
+    if(!totals[category]){
 
-    const sorted =
-        Object.entries(totals)
-        .sort((a,b)=>b[1]-a[1]);
+        totals[category] = {
 
+            total: 0,
+
+            subs: {}
+
+        };
+
+    }
+
+    totals[category].total +=
+        Number(t.amount);
+
+    totals[category].subs[subcategory] =
+        (totals[category].subs[subcategory] || 0)
+        + Number(t.amount);
+
+});
+
+const sorted =
+    Object.entries(totals)
+    .sort(
+        (a,b)=>
+            b[1].total -
+            a[1].total
+    );
+
+
+    
     let html = `
         <table>
             <tr>
@@ -1435,15 +1460,48 @@ const lastDay =
             </tr>
     `;
 
-    sorted.forEach(([name,total]) => {
+sorted.forEach(([category, info]) => {
+
+    html += `
+        <tr
+            style="
+                font-weight:bold;
+                background:#f5f5f5;
+            ">
+            <td>${category}</td>
+            <td>${formatMKD(info.total)} MKD</td>
+        </tr>
+    `;
+
+    const subcategories =
+        Object.entries(info.subs)
+        .sort(
+            (a,b)=>
+                b[1]-a[1]
+        );
+
+    subcategories.forEach(
+        ([sub,total]) => {
 
         html += `
             <tr>
-                <td>${name}</td>
-                <td>${formatMKD(total)} MKD</td>
+                <td
+                    style="
+                        padding-left:30px;
+                        color:#666;
+                    ">
+                    • ${sub}
+                </td>
+
+                <td>
+                    ${formatMKD(total)} MKD
+                </td>
             </tr>
         `;
+
     });
+
+});
 
     html += "</table>";
 
