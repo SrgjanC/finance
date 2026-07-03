@@ -10,7 +10,7 @@ const BONUS_SPLIT = {
 };
 
 let additionalIncomeThisMonth = 0;
-
+let selectedDate = new Date();
 
 async function loadCategories() {
 
@@ -81,6 +81,67 @@ function getCurrentMonthStart() {
         ).padStart(2, "0")
     }-01`;
 }
+
+function getSelectedMonthStart() {
+
+    return `${selectedDate.getFullYear()}-${
+        String(
+            selectedDate.getMonth() + 1
+        ).padStart(2, "0")
+    }-01`;
+
+}
+
+function getSelectedMonthEnd() {
+
+    const lastDay =
+        new Date(
+            selectedDate.getFullYear(),
+            selectedDate.getMonth() + 1,
+            0
+        ).getDate();
+
+    return `${selectedDate.getFullYear()}-${
+        String(
+            selectedDate.getMonth() + 1
+        ).padStart(2, "0")
+    }-${
+        String(lastDay).padStart(2, "0")
+    }`;
+
+}
+
+function updateMonthLabel() {
+
+    const label =
+        document.getElementById("selectedMonthLabel");
+
+    if (!label) return;
+
+    label.innerHTML =
+        selectedDate.toLocaleDateString(
+            "en-US",
+            {
+                month: "long",
+                year: "numeric"
+            }
+        );
+
+}
+
+function changeMonth(offset) {
+
+    selectedDate.setMonth(
+        selectedDate.getMonth() + offset
+    );
+
+    updateMonthLabel();
+
+}
+
+
+
+
 function getCurrentMonthEnd() {
 
     const today =
