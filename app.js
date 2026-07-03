@@ -151,6 +151,7 @@ function changeMonth(offset) {
 
     updateMonthLabel();
 
+    loadDashboard();
     loadExpenses();
     loadIncomeHistory();
     loadTransferHistory();
@@ -1579,19 +1580,13 @@ document
         availableCash
     ) + " MKD";
 
-
-
-
-
-
-
-
-
     
-    const today = new Date();
-
     const firstDay =
-        getCurrentMonthStart();
+    getSelectedMonthStart();
+
+const lastDay =
+    getSelectedMonthEnd();
+    
     console.log(
         "Dashboard firstDay:",
         firstDay
@@ -1602,7 +1597,14 @@ document
         await supabaseClient
             .from("incomes")
             .select("amount")
-            .gte("income_date", firstDay);
+            .gte(
+            "income_date",
+            firstDay
+        )
+        .lte(
+            "income_date",
+            lastDay
+        );
 
     if (incomeError) {
         console.error(incomeError);
@@ -1622,9 +1624,13 @@ document
             .from("transactions")
             .select("amount")
             .gte(
-                "transaction_date",
-                firstDay
-            );
+            "transaction_date",
+            firstDay
+        )
+        .lte(
+            "transaction_date",
+            lastDay
+        );
 
     if (expenseError) {
         console.error(expenseError);
