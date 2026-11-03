@@ -667,7 +667,9 @@ async function loadRecurringExpenses() {
             .from("recurring_expenses")
             .select(`*`)
             .eq("active", true)
-            .order("sort_order");
+            .order("category", { ascending: true })
+            .order("sort_order", { ascending: true })
+            .order("name", { ascending: true });
 
     if(error){
         console.error(error);
