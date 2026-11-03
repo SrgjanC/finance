@@ -882,6 +882,35 @@ async function payRecurring(id) {
         return;
     }
 
+    // Credit 1, Credit 2, ... are linked to credits by exact name.
+    const isCreditPayment =
+        /^Credit\\s+\\d+$/i.test((recurring.name || "").trim());
+
+    let linkedCredit = null;
+
+    if(isCreditPayment){
+
+        const { data: credit, error: creditError } =
+            await supabaseClient
+                .from("credits")
+                .select("id,name,current_balance")
+                .eq("name", recurring.name.trim())
+                .maybeSingle();
+
+        if(creditError || !credit){
+            console.error("Credit lookup failed:", creditError);
+            alert(`Could not find ${recurring.name} in the credits table. No payment was recorded.`);
+            return;
+        }
+
+        linkedCredit = credit;
+
+        if(amount > Number(credit.current_balance)){
+            alert("Payment cannot exceed the remaining credit balance.");
+            return;
+        }
+    }
+
     const today =
         new Date()
             .toISOString()
@@ -939,17 +968,37 @@ async function payRecurring(id) {
             "id",
             selectedAccountId
         );
-await supabaseClient
-    .from("recurring_expenses")
-    .update({
-        amount: amount
-    })
-    .eq("id", id);
-    
+// Reduce the outstanding balance for credit payments.
+    if(linkedCredit){
+
+        const { error: creditUpdateError } =
+            await supabaseClient
+                .from("credits")
+                .update({
+                    current_balance:
+                        Math.max(0, Number(linkedCredit.current_balance) - amount)
+                })
+                .eq("id", linkedCredit.id);
+
+        if(creditUpdateError){
+            console.error("Credit balance update failed:", creditUpdateError);
+            alert("The payment was recorded, but the credit balance could not be updated. Please check Supabase.");
+        }
+    }
+
+    await supabaseClient
+        .from("recurring_expenses")
+        .update({
+            amount: amount
+        })
+        .eq("id", id);
+
     loadDashboard();
     loadExpenses();
     loadSummary();
     loadAccounts();
+    loadCredits();
+    loadNetWorth();
     loadBudgetProgress();
     loadWeeklyGroceries();
     loadRecurringExpenses();
