@@ -1630,7 +1630,7 @@ async function editExpense(id) {
 
     const newDate = prompt("Expense date (YYYY-MM-DD):", transaction.transaction_date);
     if(newDate === null) return;
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(newDate)){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(newDate)){
         alert("Please enter the date in YYYY-MM-DD format.");
         return;
     }
@@ -1668,7 +1668,7 @@ async function editExpense(id) {
         }
     }
 
-    const creditMatch = (transaction.note || "").match(/^Recurring: (Credit\\s+\\d+)$/i);
+    const creditMatch = (transaction.note || "").match(/^Recurring: (Credit\s+\d+)$/i);
     if(creditMatch && delta !== 0){
         const { data: credit, error: creditError } = await supabaseClient
             .from("credits").select("id,current_balance")
@@ -1729,7 +1729,7 @@ async function deleteExpense(id) {
         if(accountUpdateError){ console.error(accountUpdateError); return; }
     }
 
-    const creditMatch = (transaction.note || "").match(/^Recurring: (Credit\\s+\\d+)$/i);
+    const creditMatch = (transaction.note || "").match(/^Recurring: (Credit\s+\d+)$/i);
     if(creditMatch){
         const { data: credit, error: creditError } = await supabaseClient
             .from("credits").select("id,current_balance")
