@@ -1011,6 +1011,7 @@ async function payRecurring(id) {
     alert(
         `${recurring.name} paid successfully`
     );
+    await refreshAccountViews();
 }
 
 
@@ -1269,6 +1270,7 @@ document.getElementById("note").value = "";
     loadWeeklyGroceries();
     loadTopCategories();
     
+    await refreshAccountViews();
 }
 
 
@@ -1707,6 +1709,7 @@ async function editExpense(id) {
     loadCredits(); loadExpenses(); loadSummary(); loadBudgetProgress();
     loadWeeklyGroceries(); loadTopCategories();
     alert("Expense updated successfully.");
+    await refreshAccountViews();
 }
 
 async function deleteExpense(id) {
@@ -1753,6 +1756,7 @@ async function deleteExpense(id) {
     loadDashboard(); loadNetWorth(); loadSavingsGoals(); loadAccounts();
     loadCredits(); loadExpenses(); loadSummary(); loadBudgetProgress();
     loadWeeklyGroceries(); loadTopCategories();
+    await refreshAccountViews();
 }
 
 async function loadDashboard() {
@@ -2009,6 +2013,7 @@ document.getElementById("incomeNote").value = "";
     loadWeeklyGroceries();
     loadAdditionalIncome();
     calculateBonusPlan();
+    await refreshAccountViews();
 }
 
 async function loadIncomeHistory() {
@@ -2560,6 +2565,17 @@ async function loadCredits() {
 // as ordinary spending in monthly reports.
 // ---------------------------------------------------------
 
+// Refresh every view that depends on account balances.
+async function refreshAccountViews() {
+    await Promise.all([
+        loadDashboard(),             // Available Cash and dashboard totals
+        loadAccounts(),              // Accounts & Funds
+        loadNetWorth(),
+        loadSavingsGoals(),
+        loadAccountReconciliation() // App balances in reconciliation
+    ]);
+}
+
 function getLocalDateString(date = new Date()) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -2746,7 +2762,7 @@ async function saveAccountReconciliation(accountId) {
     }
 
     alert(`${account.name} reconciled successfully. Difference: ${formatMKD(difference)} MKD`);
-    await Promise.all([loadAccountReconciliation(), loadAccounts(), loadNetWorth(), loadSavingsGoals()]);
+    await refreshAccountViews();
 }
 
 async function undoAccountReconciliation(reconciliationId) {
@@ -3027,6 +3043,7 @@ async function saveTransfer() {
     loadAccounts();
     loadSavingsGoals();
     loadTransferHistory();
+    await refreshAccountViews();
 }
 async function loadTransferHistory() {
 
@@ -3191,6 +3208,7 @@ console.log(
     await loadTransferHistory()
 
     
+    await refreshAccountViews();
 }
 updateMonthLabel();
 
