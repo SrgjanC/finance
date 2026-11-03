@@ -11,6 +11,8 @@ const BONUS_SPLIT = {
 
 let additionalIncomeThisMonth = 0;
 let selectedDate = new Date();
+let expenseSortColumn = "transaction_date";
+let expenseSortAscending = false;
 console.log("selectedDate:", selectedDate);
 console.log("Month:", selectedDate.getMonth() + 1);
 console.log("Label:", selectedDate.toLocaleDateString(
@@ -1560,51 +1562,37 @@ sorted.forEach(([category, info]) => {
 }
 
 async function loadExpenses() {
+    const firstDay = getSelectedMonthStart();
+    const lastDay = getSelectedMonthEnd();
 
-const firstDay =
-    getSelectedMonthStart();
-
-const lastDay =
-    getSelectedMonthEnd();
-
-    console.log(    "Expenses:",    firstDay,    "->",    lastDay );
-    
-    const { data, error } =
-    await supabaseClient
+    const { data, error } = await supabaseClient
         .from("transactions")
-        .select(`
-            *,
-            categories(name),
-            subcategories(name),
-            accounts(name)
-        `)
-        .gte(
-            "transaction_date",
-            firstDay
-        )
-        .lte(
-            "transaction_date",
-            lastDay
-        )
-        .order(
-            "transaction_date",
-            {
-                ascending: false
-            }
-        );
+        .select(`*, categories(name), subcategories(name), accounts(name)`)
+        .gte("transaction_date", firstDay)
+        .lte("transaction_date", lastDay);
 
-    if (error) {
-        console.error(error);
-        return;
-    }
+    if(error){ console.error(error); return; }
 
-    const tbody =
-        document.querySelector("#expensesTable tbody");
+    const sortValue = t => {
+        switch(expenseSortColumn){
+            case "category": return (t.categories?.name || "").toLowerCase();
+            case "subcategory": return (t.subcategories?.name || "").toLowerCase();
+            case "amount": return Number(t.amount) || 0;
+            case "account": return (t.accounts?.name || "").toLowerCase();
+            case "note": return (t.note || "").toLowerCase();
+            default: return t.transaction_date || "";
+        }
+    };
 
+    data.sort((a,b) => {
+        const av = sortValue(a), bv = sortValue(b);
+        const result = av < bv ? -1 : av > bv ? 1 : 0;
+        return expenseSortAscending ? result : -result;
+    });
+
+    const tbody = document.querySelector("#expensesTable tbody");
     tbody.innerHTML = "";
-
     data.forEach(t => {
-
         tbody.innerHTML += `
         <tr>
             <td>${t.transaction_date}</td>
@@ -1614,80 +1602,155 @@ const lastDay =
             <td>${t.accounts?.name || ""}</td>
             <td>${t.note || ""}</td>
             <td>
-                <button onclick="deleteExpense(${t.id})">
-                    Delete
-                </button>
+                <button onclick="editExpense(${t.id})">Edit</button>
+                <button onclick="deleteExpense(${t.id})">Delete</button>
             </td>
-        </tr>
-        `;
+        </tr>`;
     });
 }
 
-async function deleteExpense(id) {
-
-    if (!confirm("Delete this expense?"))
-        return;
-
-    const { data: transaction } =
-        await supabaseClient
-            .from("transactions")
-            .select(`
-                amount,
-                account_id
-            `)
-            .eq("id", id)
-            .single();
-
-    if(
-        transaction?.account_id
-    ){
-
-        const { data: account } =
-            await supabaseClient
-                .from("accounts")
-                .select("balance")
-                .eq(
-                    "id",
-                    transaction.account_id
-                )
-                .single();
-
-        await supabaseClient
-            .from("accounts")
-            .update({
-
-                balance:
-                    Number(account.balance)
-                    +
-                    Number(transaction.amount)
-
-            })
-            .eq(
-                "id",
-                transaction.account_id
-            );
+function sortExpenses(column) {
+    if(expenseSortColumn === column){
+        expenseSortAscending = !expenseSortAscending;
+    } else {
+        expenseSortColumn = column;
+        expenseSortAscending = column === "transaction_date" ? false : true;
     }
-
-    const { error } =
-        await supabaseClient
-            .from("transactions")
-            .delete()
-            .eq("id", id);
-
-    if (error) {
-        console.error(error);
-        return;
-    }
-
-    loadDashboard();
-    loadNetWorth();
-    loadSavingsGoals();
-    loadAccounts();
     loadExpenses();
-    loadSummary();
-    loadBudgetProgress();
-    loadWeeklyGroceries();
-    loadTopCategories();
+}
+
+async function editExpense(id) {
+    const { data: transaction, error } = await supabaseClient
+        .from("transactions").select("*").eq("id", id).single();
+    if(error || !transaction){
+        console.error(error);
+        alert("Could not load this expense.");
+        return;
+    }
+
+    const newDate = prompt("Expense date (YYYY-MM-DD):", transaction.transaction_date);
+    if(newDate === null) return;
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(newDate)){
+        alert("Please enter the date in YYYY-MM-DD format.");
+        return;
+    }
+
+    const newAmountText = prompt("Expense amount (MKD):", transaction.amount);
+    if(newAmountText === null) return;
+    const newAmount = Number(newAmountText);
+    if(!Number.isFinite(newAmount) || newAmount <= 0){
+        alert("Please enter a valid amount.");
+        return;
+    }
+
+    const newNote = prompt("Note:", transaction.note || "");
+    if(newNote === null) return;
+
+    const oldAmount = Number(transaction.amount);
+    const delta = oldAmount - newAmount;
+
+    if(transaction.account_id && delta !== 0){
+        const { data: account, error: accountError } = await supabaseClient
+            .from("accounts").select("balance").eq("id", transaction.account_id).single();
+        if(accountError || !account){
+            console.error(accountError);
+            alert("Could not load the account balance. Expense was not changed.");
+            return;
+        }
+        const { error: accountUpdateError } = await supabaseClient
+            .from("accounts")
+            .update({ balance: Number(account.balance) + delta })
+            .eq("id", transaction.account_id);
+        if(accountUpdateError){
+            console.error(accountUpdateError);
+            alert("Could not update the account balance. Expense was not changed.");
+            return;
+        }
+    }
+
+    const creditMatch = (transaction.note || "").match(/^Recurring: (Credit\\s+\\d+)$/i);
+    if(creditMatch && delta !== 0){
+        const { data: credit, error: creditError } = await supabaseClient
+            .from("credits").select("id,current_balance")
+            .eq("name", creditMatch[1]).maybeSingle();
+        if(creditError || !credit){
+            alert("The linked credit could not be found. Please check its balance manually.");
+            return;
+        }
+        const adjustedBalance = Number(credit.current_balance) + delta;
+        if(adjustedBalance < 0){
+            alert("This edited payment exceeds the remaining credit balance. Expense was not changed.");
+            return;
+        }
+        const { error: creditUpdateError } = await supabaseClient
+            .from("credits").update({ current_balance: adjustedBalance }).eq("id", credit.id);
+        if(creditUpdateError){
+            console.error(creditUpdateError);
+            alert("Could not update the credit balance.");
+            return;
+        }
+    }
+
+    const { error: updateError } = await supabaseClient
+        .from("transactions")
+        .update({ transaction_date: newDate, amount: newAmount, note: newNote })
+        .eq("id", id);
+    if(updateError){
+        console.error(updateError);
+        alert("Could not save the expense changes.");
+        return;
+    }
+
+    loadDashboard(); loadNetWorth(); loadSavingsGoals(); loadAccounts();
+    loadCredits(); loadExpenses(); loadSummary(); loadBudgetProgress();
+    loadWeeklyGroceries(); loadTopCategories();
+    alert("Expense updated successfully.");
+}
+
+async function deleteExpense(id) {
+    if(!confirm("Delete this expense?")) return;
+
+    const { data: transaction, error: transactionError } = await supabaseClient
+        .from("transactions").select("amount,account_id,note").eq("id", id).single();
+    if(transactionError || !transaction){
+        console.error(transactionError);
+        return;
+    }
+
+    if(transaction.account_id){
+        const { data: account, error: accountError } = await supabaseClient
+            .from("accounts").select("balance").eq("id", transaction.account_id).single();
+        if(accountError || !account){ console.error(accountError); return; }
+
+        const { error: accountUpdateError } = await supabaseClient
+            .from("accounts")
+            .update({ balance: Number(account.balance) + Number(transaction.amount) })
+            .eq("id", transaction.account_id);
+        if(accountUpdateError){ console.error(accountUpdateError); return; }
+    }
+
+    const creditMatch = (transaction.note || "").match(/^Recurring: (Credit\\s+\\d+)$/i);
+    if(creditMatch){
+        const { data: credit, error: creditError } = await supabaseClient
+            .from("credits").select("id,current_balance")
+            .eq("name", creditMatch[1]).maybeSingle();
+        if(creditError || !credit){
+            alert("The linked credit could not be found. Please check its balance manually.");
+        } else {
+            const { error: creditUpdateError } = await supabaseClient
+                .from("credits")
+                .update({ current_balance: Number(credit.current_balance) + Number(transaction.amount) })
+                .eq("id", credit.id);
+            if(creditUpdateError){ console.error(creditUpdateError); return; }
+        }
+    }
+
+    const { error } = await supabaseClient.from("transactions").delete().eq("id", id);
+    if(error){ console.error(error); return; }
+
+    loadDashboard(); loadNetWorth(); loadSavingsGoals(); loadAccounts();
+    loadCredits(); loadExpenses(); loadSummary(); loadBudgetProgress();
+    loadWeeklyGroceries(); loadTopCategories();
 }
 
 async function loadDashboard() {
