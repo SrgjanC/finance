@@ -2552,6 +2552,276 @@ async function loadCredits() {
         .innerHTML = html;
 }
 
+
+// ---------------------------------------------------------
+// MONTHLY ACCOUNT RECONCILIATION
+// Differences are stored separately from normal transactions.
+// This keeps adjustments auditable and prevents them appearing
+// as ordinary spending in monthly reports.
+// ---------------------------------------------------------
+
+function getLocalDateString(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+}
+
+async function loadAccountReconciliation() {
+    const container = document.getElementById("accountReconciliation");
+    if (!container) return;
+
+    const [{ data: accounts, error: accountsError }, { data: history, error: historyError }] =
+        await Promise.all([
+            supabaseClient.from("accounts").select("id,name,account_type,balance").order("id"),
+            supabaseClient.from("account_reconciliations")
+                .select("*")
+                .order("created_at", { ascending: false })
+                .limit(30)
+        ]);
+
+    if (accountsError || historyError) {
+        console.error("Reconciliation loading error:", accountsError || historyError);
+        container.innerHTML = '<p style="color:#c0392b">Could not load reconciliation. Check that the account_reconciliations table has been created in Supabase.</p>';
+        return;
+    }
+
+    const now = new Date();
+    const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const currentMonthRecords = (history || []).filter(r =>
+        String(r.reconciliation_date || "").slice(0, 7) === monthKey &&
+        r.status === "confirmed"
+    );
+    const reconciledIds = new Set(currentMonthRecords.map(r => Number(r.account_id)));
+    const pendingCount = (accounts || []).filter(a => !reconciledIds.has(Number(a.id))).length;
+
+    const accountRows = (accounts || []).map(account => {
+        const checked = reconciledIds.has(Number(account.id));
+        return `
+            <tr>
+                <td>
+                    <strong>${account.name}</strong>
+                    <br><small style="color:#777">${account.account_type || ""}</small>
+                </td>
+                <td style="white-space:nowrap">${formatMKD(Number(account.balance || 0))} MKD</td>
+                <td>
+                    <input type="number" step="0.01" min="0"
+                        id="reconcileActual${account.id}"
+                        placeholder="Enter actual balance"
+                        style="width:145px;max-width:100%">
+                </td>
+                <td>
+                    ${checked
+                        ? '<span style="color:green;font-weight:bold">✓ Checked</span>'
+                        : '<span style="color:#b7791f">Pending</span>'}
+                </td>
+                <td>
+                    <button type="button" onclick="saveAccountReconciliation(${account.id})">
+                        ${checked ? "Reconcile again" : "Confirm"}
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+
+    const accountNames = Object.fromEntries((accounts || []).map(a => [Number(a.id), a.name]));
+    const latestConfirmedByAccount = new Map();
+    (history || []).filter(r => r.status === "confirmed").forEach(r => {
+        const id = Number(r.account_id);
+        if (!latestConfirmedByAccount.has(id)) latestConfirmedByAccount.set(id, r.id);
+    });
+
+    const historyRows = (history || []).map(record => {
+        const difference = Number(record.difference || 0);
+        const canUndo = record.status === "confirmed" &&
+            latestConfirmedByAccount.get(Number(record.account_id)) === record.id;
+        return `
+            <tr>
+                <td>${record.reconciliation_date}</td>
+                <td>${accountNames[Number(record.account_id)] || ("Account #" + record.account_id)}</td>
+                <td>${formatMKD(Number(record.previous_balance || 0))}</td>
+                <td>${formatMKD(Number(record.actual_balance || 0))}</td>
+                <td style="color:${difference < 0 ? "#c0392b" : difference > 0 ? "#16803c" : "inherit"}">
+                    ${difference > 0 ? "+" : ""}${formatMKD(difference)} MKD
+                </td>
+                <td>
+                    ${record.status === "reversed"
+                        ? '<span style="color:#777">Undone</span>'
+                        : canUndo
+                            ? `<button type="button" class="delete-btn" onclick="undoAccountReconciliation(${record.id})">Undo</button>`
+                            : '<span style="color:green">Confirmed</span>'}
+                </td>
+            </tr>
+        `;
+    }).join("");
+
+    container.innerHTML = `
+        <p style="color:#666;margin-top:0">
+            Enter the real balance shown by each bank or the cash you have counted.
+            The app compares it with the recorded balance. No changes are made until you confirm.
+        </p>
+        <div style="padding:10px 12px;margin-bottom:12px;border-radius:8px;background:${pendingCount ? "#fff3cd" : "#e8f5e9"}">
+            ${pendingCount
+                ? `<strong>${pendingCount} account(s) still need checking</strong> for ${now.toLocaleDateString("en-GB", { month: "long", year: "numeric" })}. Suggested check: 1st–3rd of the month.`
+                : `<strong style="color:green">All accounts reconciled for this month.</strong>`}
+            <br><small>You can reconcile again or undo the latest reconciliation at any time.</small>
+        </div>
+        <div style="overflow-x:auto">
+            <table>
+                <thead>
+                    <tr><th>Account</th><th>App balance</th><th>Actual balance</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody>${accountRows}</tbody>
+            </table>
+        </div>
+        <h3 style="margin-top:22px">Reconciliation History</h3>
+        ${historyRows
+            ? `<div style="overflow-x:auto"><table>
+                <thead><tr><th>Date</th><th>Account</th><th>Before</th><th>Actual</th><th>Difference</th><th>Action</th></tr></thead>
+                <tbody>${historyRows}</tbody>
+            </table></div>`
+            : '<p style="color:#777">No reconciliations recorded yet.</p>'}
+        <small style="color:#777">Undo is available for the latest confirmed reconciliation of each account. It reverses only that adjustment and preserves transactions entered afterwards.</small>
+    `;
+}
+
+async function saveAccountReconciliation(accountId) {
+    const input = document.getElementById(`reconcileActual${accountId}`);
+    if (!input || input.value.trim() === "") {
+        alert("Please enter the actual account balance.");
+        return;
+    }
+
+    const actualBalance = Number(input.value);
+    if (!Number.isFinite(actualBalance) || actualBalance < 0) {
+        alert("Please enter a valid balance (zero or greater).");
+        return;
+    }
+
+    const { data: account, error: accountError } = await supabaseClient
+        .from("accounts")
+        .select("id,name,balance")
+        .eq("id", accountId)
+        .single();
+
+    if (accountError || !account) {
+        console.error(accountError);
+        alert("Could not load this account. No changes were made.");
+        return;
+    }
+
+    const previousBalance = Number(account.balance || 0);
+    const difference = Number((actualBalance - previousBalance).toFixed(2));
+    const reconciliationDate = getLocalDateString();
+
+    const { data: record, error: insertError } = await supabaseClient
+        .from("account_reconciliations")
+        .insert({
+            account_id: accountId,
+            reconciliation_date: reconciliationDate,
+            previous_balance: previousBalance,
+            actual_balance: actualBalance,
+            difference,
+            status: "confirmed"
+        })
+        .select()
+        .single();
+
+    if (insertError || !record) {
+        console.error(insertError);
+        alert("Could not save the reconciliation record. Check the Supabase table and permissions.");
+        return;
+    }
+
+    const { error: updateError } = await supabaseClient
+        .from("accounts")
+        .update({ balance: actualBalance })
+        .eq("id", accountId);
+
+    if (updateError) {
+        console.error(updateError);
+        await supabaseClient.from("account_reconciliations").delete().eq("id", record.id);
+        alert("The account balance could not be updated. The reconciliation record was cancelled.");
+        return;
+    }
+
+    alert(`${account.name} reconciled successfully. Difference: ${formatMKD(difference)} MKD`);
+    await Promise.all([loadAccountReconciliation(), loadAccounts(), loadNetWorth(), loadSavingsGoals()]);
+}
+
+async function undoAccountReconciliation(reconciliationId) {
+    if (!confirm("Undo this reconciliation? Only its adjustment will be reversed. Transactions entered afterwards will remain unchanged.")) {
+        return;
+    }
+
+    const { data: record, error: recordError } = await supabaseClient
+        .from("account_reconciliations")
+        .select("*")
+        .eq("id", reconciliationId)
+        .single();
+
+    if (recordError || !record || record.status !== "confirmed") {
+        alert("This reconciliation is not available to undo.");
+        return;
+    }
+
+    const { data: latest, error: latestError } = await supabaseClient
+        .from("account_reconciliations")
+        .select("id")
+        .eq("account_id", record.account_id)
+        .eq("status", "confirmed")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (latestError || !latest || Number(latest.id) !== Number(record.id)) {
+        alert("Only the latest confirmed reconciliation for this account can be undone. Undo newer reconciliations first.");
+        return;
+    }
+
+    const { data: account, error: accountError } = await supabaseClient
+        .from("accounts")
+        .select("balance")
+        .eq("id", record.account_id)
+        .single();
+
+    if (accountError || !account) {
+        alert("Could not load the account balance. No changes were made.");
+        return;
+    }
+
+    const reversedBalance = Number((Number(account.balance || 0) - Number(record.difference || 0)).toFixed(2));
+
+    const { error: statusError } = await supabaseClient
+        .from("account_reconciliations")
+        .update({ status: "reversed" })
+        .eq("id", record.id)
+        .eq("status", "confirmed");
+
+    if (statusError) {
+        console.error(statusError);
+        alert("Could not mark the reconciliation as reversed. No balance was changed.");
+        return;
+    }
+
+    const { error: balanceError } = await supabaseClient
+        .from("accounts")
+        .update({ balance: reversedBalance })
+        .eq("id", record.account_id);
+
+    if (balanceError) {
+        console.error(balanceError);
+        await supabaseClient.from("account_reconciliations")
+            .update({ status: "confirmed" })
+            .eq("id", record.id);
+        alert("Could not reverse the account balance. The reconciliation was restored to confirmed status.");
+        return;
+    }
+
+    alert("Reconciliation undone. You can now enter the missing expense and reconcile the account again.");
+    await Promise.all([loadAccountReconciliation(), loadAccounts(), loadNetWorth(), loadSavingsGoals()]);
+}
+
 async function loadAccounts() {
 
     const { data, error } =
@@ -2944,6 +3214,7 @@ loadCredits();
 loadAccounts();
 loadNetWorth();
 loadSavingsGoals();
+loadAccountReconciliation();
 loadAdditionalIncome();
 
 
