@@ -884,7 +884,7 @@ async function payRecurring(id) {
 
     // Credit 1, Credit 2, ... are linked to credits by exact name.
     const isCreditPayment =
-        /^Credit\\s+\\d+$/i.test((recurring.name || "").trim());
+        /^Credit\s+\d+$/i.test((recurring.name || "").trim());
 
     let linkedCredit = null;
 
