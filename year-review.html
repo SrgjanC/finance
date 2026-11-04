@@ -1,1 +1,31 @@
-<!DOCTYPE html><html><head><title>Year Review</title></head><body><h1>Year Review</h1></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Year Review | Finance Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="year-review.css">
+</head>
+<body>
+<header class="review-header">
+  <div><h1>Year Review</h1><p>Annual overview of expenses by category and subcategory</p></div>
+  <div class="review-controls"><label for="reviewYear">Year</label><select id="reviewYear"></select><button onclick="loadYearReview()">Refresh</button></div>
+</header>
+<section class="review-kpis">
+  <div class="review-kpi"><span>Total expenses</span><strong id="yearExpenses">—</strong></div>
+  <div class="review-kpi"><span>Total income</span><strong id="yearIncome">—</strong></div>
+  <div class="review-kpi"><span>Income minus expenses</span><strong id="yearDifference">—</strong></div>
+  <div class="review-kpi"><span>Average monthly expenses</span><strong id="monthlyAverage">—</strong></div>
+  <div class="review-kpi"><span>Highest spending month</span><strong id="highestMonth">—</strong></div>
+</section>
+<div class="review-actions"><button onclick="exportYearReviewCSV()">Export CSV</button><button onclick="window.print()">Print / Save PDF</button></div>
+<p class="review-note">Amounts are in MKD. Transfers between your own accounts are excluded. Monthly totals use transaction dates.</p>
+<div id="reviewStatus" class="review-status">Loading annual data…</div>
+<div class="review-table-wrap"><table id="yearReviewTable"><thead id="yearReviewHead"></thead><tbody id="yearReviewBody"></tbody></table></div>
+<nav class="nav-bar"><a href="index.html">Dashboard</a><a href="year-review.html">Year Review</a><a href="settings.html">Settings</a></nav>
+<script src="supabase.js"></script>
+<script src="year-review.js"></script>
+</body>
+</html>
