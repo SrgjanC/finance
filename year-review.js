@@ -37,7 +37,7 @@ async function loadYearReview() {
         const end = year + "-12-31";
         const results = await Promise.all([
             reviewFetchAll("transactions", "amount,transaction_date,category_id,subcategory_id", "transaction_date", start, end),
-            reviewFetchAll("incomes", "amount,income_date", "income_date", start, end),
+            reviewFetchAll("incomes", "amount,income_date,income_sources(name),income_subcategories(name)", "income_date", start, end),
             supabaseClient.from("categories").select("id,name,sort_order").order("sort_order", {ascending:true}),
             supabaseClient.from("subcategories").select("id,name,category_id").order("name", {ascending:true})
         ]);
@@ -106,6 +106,60 @@ async function loadYearReview() {
         body += '<tr class="total-row"><td>ALL EXPENSES</td>' + monthTotals.map(v => '<td>' + (v ? reviewMoney(v) : '—') + '</td>').join("") + '<td>' + reviewMoney(expenseTotal) + '</td></tr>';
         exportRows.push(["ALL EXPENSES","",...monthTotals.map(v => v.toFixed(2)),expenseTotal.toFixed(2)]);
         document.getElementById("yearReviewBody").innerHTML = body || '<tr><td colspan="14">No expenses found for this year.</td></tr>';
+        // Build the income matrix grouped by income source and subcategory.
+        const incomeGroupsMap = new Map();
+        const incomeMonthTotals = Array(12).fill(0);
+        incomes.forEach(income => {
+            const month = Number(income.income_date.slice(5,7)) - 1;
+            const categoryName = income.income_sources?.name || "Uncategorized";
+            const subcategoryName = income.income_subcategories?.name || "Other";
+            const key = categoryName + "::" + subcategoryName;
+            if (!incomeGroupsMap.has(key)) {
+                incomeGroupsMap.set(key, {categoryName, subcategoryName, months:Array(12).fill(0), total:0});
+            }
+            const amount = Number(income.amount || 0);
+            const item = incomeGroupsMap.get(key);
+            item.months[month] += amount;
+            item.total += amount;
+            incomeMonthTotals[month] += amount;
+        });
+
+        const incomeItems = Array.from(incomeGroupsMap.values());
+        const incomeCategoryNames = [...new Set(incomeItems.map(item => item.categoryName))].sort((a,b) => a.localeCompare(b));
+        document.getElementById("yearIncomeReviewHead").innerHTML =
+            "<tr><th>Income Category / Subcategory</th>" +
+            yearMonthLabels.map(m => "<th>" + m + "." + year + "</th>").join("") +
+            "<th>Year Total</th></tr>";
+
+        let incomeBody = "";
+        exportRows.push([], ["INCOME CATEGORY","INCOME SUBCATEGORY",...yearMonthLabels.map(m => m + "." + year),"Year Total"]);
+        incomeCategoryNames.forEach(categoryName => {
+            const items = incomeItems.filter(item => item.categoryName === categoryName)
+                .sort((a,b) => a.subcategoryName.localeCompare(b.subcategoryName));
+            const categoryMonths = Array(12).fill(0);
+            let categoryTotal = 0;
+            items.forEach(item => {
+                item.months.forEach((value,index) => categoryMonths[index] += value);
+                categoryTotal += item.total;
+            });
+            incomeBody += '<tr class="category-row"><td>' + reviewEscape(categoryName) + '</td>' +
+                categoryMonths.map(value => '<td>' + (value ? reviewMoney(value) : '<span class="zero">—</span>') + '</td>').join("") +
+                '<td>' + reviewMoney(categoryTotal) + '</td></tr>';
+            exportRows.push([categoryName,"",...categoryMonths.map(value => value.toFixed(2)),categoryTotal.toFixed(2)]);
+            items.forEach(item => {
+                incomeBody += '<tr class="sub-row"><td>' + reviewEscape(item.subcategoryName) + '</td>' +
+                    item.months.map(value => '<td>' + (value ? reviewMoney(value) : '<span class="zero">—</span>') + '</td>').join("") +
+                    '<td>' + reviewMoney(item.total) + '</td></tr>';
+                exportRows.push([categoryName,item.subcategoryName,...item.months.map(value => value.toFixed(2)),item.total.toFixed(2)]);
+            });
+        });
+        incomeBody += '<tr class="total-row"><td>ALL INCOME</td>' +
+            incomeMonthTotals.map(value => '<td>' + (value ? reviewMoney(value) : '—') + '</td>').join("") +
+            '<td>' + reviewMoney(incomeTotal) + '</td></tr>';
+        exportRows.push(["ALL INCOME","",...incomeMonthTotals.map(value => value.toFixed(2)),incomeTotal.toFixed(2)]);
+        document.getElementById("yearIncomeReviewBody").innerHTML =
+            incomeBody || '<tr><td colspan="14">No income found for this year.</td></tr>';
+
         yearReviewExport = exportRows;
         status.textContent = transactions.length + " expense transactions and " + incomes.length + " income records loaded for " + year + ".";
     } catch (error) {
