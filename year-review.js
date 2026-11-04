@@ -83,7 +83,8 @@ async function loadYearReview() {
         const differenceEl = document.getElementById("yearDifference");
         differenceEl.textContent = reviewMoney(difference) + " MKD";
         differenceEl.style.color = difference < 0 ? "#c62828" : "#2e7d32";
-        document.getElementById("monthlyAverage").textContent = reviewMoney(expenseTotal / 12) + " MKD";
+        const monthsElapsed = year === new Date().getFullYear() ? new Date().getMonth() + 1 : 12;
+        document.getElementById("monthlyAverage").textContent = reviewMoney(expenseTotal / monthsElapsed) + " MKD";
         document.getElementById("highestMonth").textContent = reviewMoney(monthTotals[highIndex]) + " MKD · " + highMonth;
         document.getElementById("yearReviewHead").innerHTML = "<tr><th>Category / Subcategory</th>" + yearMonthLabels.map(m => "<th>" + m + "." + year + "</th>").join("") + "<th>Year Total</th></tr>";
         let body = "";
